@@ -1,0 +1,1297 @@
+
+\documentclass{article}
+
+\usepackage[a4paper, total={6.0in, 9in}]{geometry}
+\linespread{1.2}
+
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{float}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{stackengine}
+\usepackage{eurosym}
+
+\def\useanchorwidth{T}
+\stackMath
+
+\usepackage{amsfonts}
+\usepackage{dsfont}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{stmaryrd}
+\usepackage{lineno}	% line numbers
+\usepackage[colorinlistoftodos]{todonotes} % comments
+\usepackage{comment}
+\usepackage{lmodern}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{booktabs}% for better rules in the table
+\usepackage{pythonhighlight}
+\usepackage{ffcode}
+\usepackage{listings}
+\usepackage{anyfontsize}
+
+\usepackage{eurosym}
+
+\renewcommand{\tabularxcolumn}[1]{m{#1}}%
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+\usepackage{cellspace}
+\setlength\cellspacetoplimit{4pt}
+\setlength\cellspacebottomlimit{4pt}
+\addparagraphcolumntypes{X}
+
+\usepackage{colortbl,dcolumn}
+
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\newcommand{\myexample}[2]{
+    \begin{tcolorbox}[colback=black!5!white,colframe=gray,title={Running example: #1}]
+        #2
+    \end{tcolorbox}
+}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+\date{}
+
+\def\zz#1{%
+\ifdim#1pt<5pt\cellcolor{green}\else
+\ifdim#1pt<50pt\cellcolor{yellow}\else
+\cellcolor{red}\fi\fi
+#1}
+
+\providecommand{\keywords}[1]
+{
+  \small	
+  \textbf{\textit{Keywords---}} #1
+}
+
+\newtheorem{remark}{Remark}
+\newtheorem{proposition}{Proposition}
+
+\title{Several shades of input-output models \\ for geosectoral stress testing}
+
+\author{
+  Edouard Pineau \\
+  \texttt{Natixis}\\
+  \texttt{edouard.pineau@natixis.com}
+}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+\noindent Input-output (IO) modeling has become the standard methodology for stress testing economic value chains against production and cost inflation shocks. Notwithstanding their widespread deployment, some deficiencies exist in the literature regarding investigations into the varied properties and extensive applications of these modeling frameworks, especially when applied for stress testing exercises. This paper addresses these deficiencies by focusing on how model outcomes are affected by the assumed origin of a shock, whether it is applied to final demand, gross value added, intermediate consumption, or total output variables. Moreover, we look on how different parts of the modeling framework interact, in particular between price and production equations. We also show the relation between the introduction of binary pass-through mechanisms and the asbence of geosectoral feedbacks, and more generally how the pass-through rates can be integrated in all Leontief stressing assumptions. 
+We present a thorough review that integrates theoretical principles with practical applications, drawing on examples from the environmental stress tests (carbon price or biodiversity intactness) currently required of financial institutions, to illuminate the theories of IO modeling for stress testing.
+\end{abstract}
+
+\noindent \keywords{input-output modeling, environmental risks}
+
+\section{Introduction}
+\label{sec:introduction}
+
+\paragraph{Modeling the components of economic production at geosectoral level}
+The productive economy functions through the interplay of four main interdependent components: gross value added (GVA), final demand, prices, and production. GVA measures the value a company or sector creates beyond its intermediate consumption when producing final goods, consisting mainly of returns to labor (wages) and capital. It is formally calculated as production (at basic prices) minus intermediate consumption (at acquisition prices). Final demand plays a central role in determining the economy's requirement for goods and services, thereby influencing production and price levels. Prices, which reflect the monetary value of goods and services, act as a signal to both consumers and producers, balancing supply and demand while stimulating competition and innovation. Finally, the production process encompasses the creation of goods and services and is determined by the available resources, the technological capabilities, and the market forces. Together, these components form a dynamic system in which a change in one element can have propagating effects throughout the economy, influencing production and subsequent externalities. It is common practice in economic modeling to treat final demand and GVA as exogenous --- that is, as inputs into the economy --- and to treat prices and production as endogenous, or outcomes shaped by the economy.
+
+
+\paragraph{Leontief's input-output analysis} 
+Input-output (IO) analysis, developed by Nobel laureate Wassily Leontief, is an economic framework for studying the interdependencies between the components of a productive economy, typically at a geo-sectoral level. It examines the flows of goods and services (inputs and outputs) that economic agents exchange during the production process. A key objective is to understand how changes in one geosector's output, whether in price or volume, affect others and how these impacts propagate through the economy as a whole. Leontief's IO model remains the most widely used framework for analyzing these interdependencies \cite{leontief1949structural}.
+For illustrative purposes, the examples in this section will use a simplified two-geosector economy (see Figure \ref{fig:leontief_scheme}). However, the equations presented are general and applicable to any number of geosectors ($n \in \mathbb{N}^*$). In the remainder of this document, a geosector $i$ is defined by its location $g_i$ and its sector $s_i$, such that $i:=(g_i,s_i)$.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.65\textwidth]{value_chain.png}
+    \caption{Schema of a 2-geosector economy under the assumption of a value chain price-production equilibrium. The assumption is twofold. Firstly, the economy produces a certain volume at a certain price to supply final demand (i.e., the leafs of the supply chain graph). Secondly, geosectors exchange their production in order to have everything they need to meet final demand. Thirdly, production prices are balanced between inter-geosector demand and final demand. Gross value added (GVA) (i.e. essentially wages and capital) per unit of output is fixed for each geosector. Details of the underlying model are presented below.}
+    \label{fig:leontief_scheme}
+\end{figure}
+
+\vspace{0.1cm}
+
+In IO analysis, the economy is depicted as a matrix where rows and columns represent the various geosectors. Each cell of this matrix quantifies the inputs that one geosector consumes from another, with a final column representing final demand. By analyzing this matrix, economists can determine the direct and indirect effects of changes in production, prices, GVA or final demand as they propagate through the economy.
+For an economic system composed of two productive geosectors, Table \ref{tab:leontief_two_sectors} shows the economic flows at equilibrium. In this context, equilibrium signifies a state where supply and demand are balanced for every geosector, meaning the total output of a sector equals the sum of its intermediate consumption by other sectors and its final demand, given a price determined by the quantity of injected GVA. The production of a geosector $i$, denoted as $x_i$, is the monetary value of its total output (a quantity of products multiplied by a unit price $p_i$). For analyses conducted in monetary units, it is standard convention to normalize the base prices to one ($p_i=1$) for all geosectors. Consequently, the variable $x_i=x_i p_i$ directly represents the total value of production in monetary terms.
+Non significant (for our paper) details on the assumptions used in Leontief IO modeling are given in Appendix \ref{appendix:leontief_assumptions}. 
+The equations and theoretical elements are presented in Section \ref{sec:leontief_model}. 
+
+\begin{table}[!h]
+    \centering
+    \setlength\extrarowheight{-1pt}
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+        & Geosector 1      & Geosector 2      & Final demand \\
+    \hline
+    Geosector 1    & $p_1 x_{11}$ &  $p_1 x_{12}$ &   $p_1 y_1$ \\
+    Geosector 2    & $p_2 x_{21}$ &  $p_2 x_{22}$ &   $p_2 y_2$ \\
+    \hline
+    Gross Value Added     & $v_1 x_1$ &  $v_2 x_2$ & $x^T v=y^T p$ \\
+    \hline
+    Final production    & $p_1 x_1$ & $p_2 x_2$ & Equilibrium \\
+    \hline
+    \end{tabular}
+    
+    \caption{Representation of an economy with two productive geosectors. The significance of the symbols is as follows ($i=1$, $j=2$): for a total production $x_i$, geosector $i$ needs a quantity of commodity $x_{ji}$ from sector $j$ used as input, and sells at unitary price $p_i$ to finally satisfy a final demand $y_i$ by injecting $v_i$ of GVA. }
+    \label{tab:leontief_two_sectors}
+\end{table}
+
+
+\paragraph{Leontief IO for stress testing exercises} 
+A stress testing exercise utilizing the Leontief framework serves to quantify the global effect of a local shock applied on one or more entries of one or more of the four principal economic components presented above, taking into account together their interactions and the geosectoral diffusion effect. A demand shock scenario adjusts final demand, $y$, to reflect reduced consumption, and its effects propagate toward production and value added \cite{siuda2022stress}. An input cost shock, modeled by adjusting GVA, $v$, generates inflation that may be analyzed with or without feedback effects \cite{ipsen2023stress}. In a second stage, a loss in demand can be derived from this inflation when price-demand elasticity exists, in turn creating losses in production and GVA. A shock applied on production capacities would affect geosectoral output, $x$, hence the intermediary consumption $Ax$. Such production incapacities may affect the price, $p$, given a demand, $y$, itself affected by the inflation as for cost shock effect described above. A similar outcome occurs when an exogenous shock exogenously and directly impacts prices, such as a sales tax, as proposed in \cite{cardenete2002price}. These different types of stress scenarios are detailed further in Section \ref{sec:perturbation_input_output} and represent the context of this paper's analysis and results. 
+
+\vspace{0.1cm}
+
+One important element of IO analysis is the capacity of taking into account geographical and sectoral features, and the way they interact. In standard economic modeling frameworks, in particular statistical models, interactions between sectors are defined using correlation and/or causality, like in vector autoregressive and affiliated models \cite{lutkepohl2013vector}. In IO, the real transfer of production to serve downstream productive needs is modeled. Hence, it enables focusing not on how or why sectors interact using statistical proxies, but how variables associated with production diffuse on value chain, how they may affect real economic production. In an economy more and more spread worldwild, with a complexity of economic products that integrate many components produced by various sectors located in various countries, the IO framework offers a powerful and justified toolbox for economic stress testing. 
+
+\vspace{0.1cm}
+
+When it comes to addressing the specific (and highly studied nowdays) case of environmental risks --- which have recently seen widespread adoption of the IO framework due to the fundamental nature of their geosectoral components --- the value chain represents a major disruptive factor for companies that are not directly exposed to physical or regulatory risks: these risks take on a systemic nature when their effects on the value chain are considered; otherwise, they remain localized \cite{andreoni2015climate}. The location of the activity exposes the production to local climate hazards, that may interrupt the business \cite{watson2024using} or involve insurance and adaptation costs \cite{jarzabkowski2019insurance}. A sector located in a region where the pressure to transition towards low-carbon economy will be exposed to transition risks, in particular if the sectors is carbon-intensive with low pricing power. If this sector depends on other sectors with high market pricing power and carbon compensation requirements, it may also be affected by an input cost inflation \cite{desnos2023climate,pineau2024sectoral}. On the physical side, climate hazards can interact with part of a sector's economic inputs or outputs, depending on its characteristics \cite{schrapffer2024assessing}. For example, a sector equiped with fixed physical assets will be more vulnerable to acute material risks. A sector heavily dependent on human capital will be more vulnerable to rising wet temperatures (chronic risk). The type of production may depend on certain natural resources, in the shape of raw material inputs or ecosystemic services. The concept of \textit{dependencies to ecosystem services} \cite{jax2013ecosystem} refers to the reliance of human activities, communities, and economies on the benefits provided by natural ecosystems. When ecosystems are degraded and biodiversity is lost, the provisioning, regulating, cultural and supporting services become increasingly scarce, leading to significant economic challenges that impact the economic production and the society as a whole \cite{richmond2007valuing}. More generally, productive economy depends on ecosystems for essential services, including food, water, raw materials, climate regulation, pollination, and cultural benefits, locally and on the total value chain \cite{tukker2014global}. In one among many papers \cite{wiedmann2015material}, authors spot the fallacious observation suggesting that \textit{``some developed countries have increased the use of natural resources at a slower rate than economic growth (relative decoupling) or have even managed to use fewer resources over time (absolute decoupling)''}, and find that economic growth is still based on environmental resources, but more spread on the value chain. While it may be seen as a diversification effect, the systemic degradation of environmental conditions (in particular in Southern countries) and the setup of transition mechanisms (in particular in Northern countries) make the value chain a possible amplificator of the risks affecting productive economy and financial values. IO is then an important tool to capture such effect. 
+
+\vspace{0.1cm}
+
+The relationships between environmental scenarios (e.g., the transition to a sustainable economy, the depletion of natural resources, global warming, and climate change) and Leontief variables, as influenced by value chain spillovers, are illustrated in the use cases described in Section \ref{sec:use_cases} that illustrate the different theoretical results of our paper. 
+
+\paragraph{Structure of the paper} The current paper presents the different facets of IO modeling as they enhance geosectoral to stress testing exercises. Section \ref{sec:leontief_model} introduces the core modeling concepts that are subsequently utilized in the theoretical Section \ref{sec:perturbation_input_output}. The Section \ref{sec:cross_effects} shows how the different parts of perturbed IO models interact to take into account not only the dependencies between geosectors, but also between involved economic variables. Then, in Section \ref{sec:use_cases}, we present a set of experiments sampled from environmental-related stress testing examples, that illustrate these theoretical results. The experiments are conducted using data from the Eurostat FIGARO IO database (see Appendix \ref{appendix:io_databases} for a comparison with other IO databases). The proofs of theoretical results are all detailed in appendices. 
+
+\section{Mathematics of input-output analysis}
+\label{sec:leontief_model}
+
+\paragraph{The two equations of Leontief} Let $A \in \mathbb{R}_+^{n\times n}$ be the matrix of IO coefficients, where $A_{ij}=x_{ij}/x_j$ represents the amount of input from geosector $i$ needed by geosector $j$, noted $x_{ij}$, to produce one unit of output $x_j$. If we replace $x_{ij}$ by $A_{ij} x_j$ in the Table \ref{tab:leontief_two_sectors}, we obtain the following Leontief equations in matrix form \cite{duchin2007mathematical}:
+
+\begin{equation}
+\label{eq:leontief_open}
+    \left\{\begin{aligned} 
+      x &= Ax + y \\ 
+      p &= A^T p + v
+    \end{aligned}\right. \iff 
+    \left\{\begin{aligned}
+     x &= (I-A)^{-1}y   & (a)\\ 
+     p &= (I-A^T)^{-1}v  & (b)
+    \end{aligned}\right.
+\end{equation}
+
+\noindent The Eq. \eqref{eq:leontief_open}(a) is a \textit{demand-pull quantity model}. It states that the total output of geosectors, $x \in \mathbb{R}_+^{n}$, is equal to the sum of the intermediate production, $Ax$, and the final demand, $y \in \mathbb{R}_+^{n}$. The Eq. \eqref{eq:leontief_open}(b) is a \textit{cost-push price model}. It states that prices $p \in \mathbb{R}_+^{n}$ of final products are equal the the price of intermediate consumption, $A^T p$, plus the GVA $v \in \mathbb{R}_+^{n}$ injected by producers. Cost-push inflation occurs when the costs (e.g., wages, taxes) increase, leading them to higher GVA, hence higher prices. It is usual to think in monetary terms, and then set $p=1$ such that $v$ is defined by unit of monetary production. Hence, since $A$ is column substochastic, i.e., total inputs does not exceed outputs in monetary value (economy does not destroy value), we have $v \in [0,1]^n$. With $p=1$, the production $x$ and demand $y$ are quantities of production in monetary value. 
+
+\vspace{0.1cm}
+
+We note $\mathcal{L}:=(I-A)^{-1}$ the \textit{Leontief inverse}. 
+Following Eq. \eqref{eq:leontief_open}, entries $\mathcal{L}_{ij}$ represent the impact of a change in final demand $y_j$ on the $i^{th}$ geosector's production $x_i$, and the impact in production price $p_j$ of a rise in GVA (e.g., cost of capital or labor) $v_i$. 
+
+\begin{remark}
+\label{remark:leontief_inverse}
+We know from Neumann expansion that $(I-A)^{-1}=\sum_{n=0}^\infty A^n$. Hence, $\mathcal{L}$ contains all the IO cycles until infinity (i.e., equilibrium), then fully takes into account the dynamical aspect of the IO model. To satisfy a demand $y$, the production needs to adapt at first order, i.e., increases by $y$; then, to meet their production increase $y$, geosectors demand inputs from economy, hence $A y$ (a first tour of the economy); then to meet this new demand, geosectors need to produce $A^2y$, and so on \cite{bartolucci2020inversion}. 
+\end{remark}
+
+\paragraph{Useful properties and conditions of stability}
+In the Leontief IO model, the matrix $A$ represents interdependencies between economic geosectors. A stable economy means that the interpendencies converges to an equilibrium that matches production and demand with unitary prices explained by the quantity of value-added created by companies, under certain fundamental economic constraints that should be reflected in the mathematical properties of $A$. 
+
+\vspace{0.1cm}
+
+First, it is usually assumed that the demand $y$ and the GVA $v$ are positive. Hence, we have $x > Ax$ and $p > A^Tp$. First inequality tells us that the total production $x_i$ of geosector $i$ is sufficient to feed at least the intermediary demand $(Ax)_i = \sum_{j=1}^n x_{ij}$. The matrix is then called \textit{productive matrix}, and ensures that the economy is stable, i.e., $A^k \rightarrow 0$ as $k \rightarrow +\infty$ (Lemme 10.2 in \cite{ersel2011linear}). It implies that $\mathcal{L}$ exists, is well-defined and is positive. Economically, it means that to a given demand $y \geq 0$ corresponds a unique positive production $x$. The second inequality tells that the matrix $A$ is column (strictly) substochastic, since $p_i=1, \forall i$.
+
+\vspace{0.1cm}
+
+Second, it is usually assumed (and observed) that the directed graph $G_A$ whose weighted adjacency is $A$ is strongly connected, i.e., for any pair of geosectors $(i,j)$ there always exists a pathway. It implies that $A$ is \textit{irreducible} (Theorem 7 in \cite{giorgi2019nonnegative}). Economically, it means that there are no geosectors producing from owned raw materials only (called \textit{unreachable} geosectors), or for themselves only (called \textit{leaf} geosectors). Following Perron-Frobenius theorem, it implies that the spectral radius of $A$, denoted $\rho(A)$, satisfies $\rho(A) < 1$. It means that $I-A$ is a M-matrix. This property is called \textit{Hawkins-Simon condition} that guarantees the existence of a non-negative output vector that solves the equilibrium relation in the input-output model where demand equals supply \cite{carlos2024existence}. These properties are equivalent to having $A$ a productive matrix (Theorem 10.6 in \cite{ersel2011linear}).
+Interesting characterizations and properties of non-singular M-matrices found in the literature on economics and mathematics are listed in\cite{plemmons1977m}. 
+
+\vspace{0.1cm}
+
+Third, to successfully conduct a stress test exercise using an IO model, the economy generally must not be on the brink of instability. Mathematically, it means that for a vector $\delta$ such that $\delta_i \in ]1-\epsilon, 1+\epsilon[$, $\epsilon >> 0$ being the significantly positive instability margin, we should have (depending on the assumption, as presented in Section \ref{sec:perturbation_input_output}) $(I-\text{diag}(\delta)A)$, $(I-A\text{diag}(\delta))$ or $(\text{diag}(\delta) - A)$ still M-matrices. Equivalently, following previsouly presented stability conditions, it may be verified that $\rho(\text{diag}(\delta)^{-1}A) < 1$, $\rho(A\text{diag}(\delta)^{-1}) < 1$ or $\rho(A\text{diag}(\delta)) < 1$. Otherwise, any stress test scenario would quickly violate the stability criteria $\epsilon$ and render the results of the exercise useless.
+
+\vspace{0.1cm}
+
+A long documentation on the stability of IO modeling is presented in \cite{wood2009always} or \cite{ersel2011linear}. In particular, the case of reductible matrix $A$ is treated, not interesting here since we have ruled out unreachable and leaf geosectors. We note that the properties in second and third paragraphs both apply to $A$ and $A^T$, i.e., useful for production and price equations (Eq. \eqref{eq:leontief_open}).
+
+\paragraph{Modeling inflation without feedbacks} For example in \cite{ipsen2023stress}, \cite{valadkhani2002assessing} or \cite{weber2024inflation}, they extend the Leontief pricing model to the case where a subset of geosectors has exogenous behavior, i.e., the shock they propagate does not affect them through value chain as a feedback. This is the case, for example, with geosectors that occupy a dominant strategic position.  In practice, it consists in pruning the graph of production flows represented by adjacency matrix $A$, forcing to zeros the edges from endogenous to exogenous geosectors. Denoting $\mathcal{E}$ the endogenous sectors, and $\mathcal{X}$ exogenous sectors, we have 
+
+\begin{align}
+    p_\mathcal{E} = \left( I - A_{\mathcal{EE}}^T \right)^{-1} \left( A_{\mathcal{XE}}^T p_\mathcal{X} + v_\mathcal{E} \right)
+\label{eq:leontief_exogenous_geosectors}
+\end{align}
+
+\noindent where $p_\mathcal{X}$ and $p_\mathcal{E}$ are the price vectors for respectively endogenous and exogenous geosectors, $A_{\mathcal{XE}}$ is the intensity matrix from exogenous geosectors to endogenous sectors. In this situation, a perturbation of $p_\mathcal{X}$ does not loop back to $p_\mathcal{X}$. Equivalent concept may be used for production, i.e., an exogenous production shock without feedback loop such that $x_\mathcal{E} = \left( I - A_{\mathcal{EE}} \right)^{-1} \left( A_{\mathcal{XE}} x_\mathcal{X} + y_\mathcal{E} \right)$. It would represent a situation where exogenous sectors lose production capacities, such that all geosectors $\mathcal{E}$ have to limit their production subsequently but still consuming all the production of geosectors $\mathcal{X}$, jointly adapting to new supply conditions, until demand is satisfied. 
+
+\paragraph{Ghosh model} Compared to Leontief model \eqref{eq:leontief_open}, the Ghosh model \cite{ghosh1958input}, while using the same Leontief framework, assumes that changes in the availability of GVA in one geosector lead to changes in total output across geosectors. It focuses on the allocation of resources and how geosectors supply outputs to others. The Ghosh model determines the output vector $x$ from GVA $v$, with the following equation
+
+\begin{equation}
+    x = (I - B^T)^{-1} v
+\label{eq:ghosh_model}
+\end{equation}
+
+\noindent where $B \in \mathbb{R}^{n \times n}$ whose entries are defined by $B_{ij}=x_{ij}/x_{i}$. We note $G := (I - B)^{-1}$. If the primary input supply to a sector increases, the model shows how the shift is distributed across other sectors. It captures the downstream (allocation of sector outputs) effects of changes in input availability, reflecting the role of sectors as suppliers to others. Compare to Leontief model that analyzes demand shocks, Ghosh model analyzes inputs (GVA injected for economic value production) shocks. We raise that in \cite{de2009ghosh}, authors appraise the Ghosh model and show that it offers solutions of limited interest, being for example incapable of providing prices separately from quantities \cite{davar2005input} and that while it may serve for cost-push exercises, the dual of the Leontief model performs the same task in a more natural way and economically credible way (GVA to price, price to demand, demand to production). While these critics exist, the equation remains verified in practice on real data, and therefore, knowing what it means, can be used for stressing quantities from GVA shocks directly. 
+
+\section{Perturbation of inputs and outputs}
+\label{sec:perturbation_input_output}
+
+Building on the definitions and properties discussed in the previous section, we outline the various ways to perturb the Leontief equilibrium or its variables using shocks that may affect, respectively, the exogenous variables ($v$ and $y$) or the endogenous variables ($p$ and $x$). We introduce key concepts and highlight interesting properties for understanding and applying IO modeling in the context of geosectoral stress tests. 
+
+\vspace{0.1cm}
+
+There are mainly three way to perturb the model, before potential interactions between variables. First, we may affect the exogenous variables of the models, i.e., GVA $v$ and final demand $y$. Second, we may perturb the final endogenous variables, i.e., the total production $x$ and the final prices $p$. Finally, we may only affect the intermediate exchange of production/price on the value chain represented by $A$. The three next subsections analyze these types of perturbations. A final subsection unify the whole analysis. Results will be mainly presented for the price model (Eq. \eqref{eq:leontief_open}(b)), yet extend naturally to quantity model (Eq. \eqref{eq:leontief_open}(a)). We note $\Delta x$ the add-on to perturbate variable $x$, and $\Delta^{\%} x$ the perturbation in percentage, i.e., $\Delta x = x \odot \Delta^{\%} x$. 
+
+\subsection{Perturbations of exogenous economic drivers}
+\label{sec:exogenous_perturbations}
+
+\paragraph{Exogenous perturbation} From Eq. \eqref{eq:leontief_open}, we apply $\Delta v$ and $\Delta y$ the respective perturbations of demand $y$ and GVA $v$, and naturally obtain
+
+\begin{equation}
+\label{eq:perturbed_exogenous_leontief}
+    \left\{\begin{aligned}
+     \Delta x^{(DP)} & = \mathcal{L} \Delta y & (a) \\
+     \Delta p^{(CP)} & = \mathcal{L}^T \Delta v & (b)
+    \end{aligned}\right.
+\end{equation}
+
+\noindent In this situation, the Leontief model, that goes from demand to production (\textit{demand-pull}, DP) or from GVA to price (\textit{cost-push}, CP) is adapted and naturally diffuses exogenous shocks to endogenous variables. The global structure of the economy, defined by $A$, remains the same. 
+
+\vspace{0.1cm}
+
+When the input cost inflation is expressed as a percentage of the initial GVA, i.e., $\Delta v=v \odot \Delta^\% c$ where $\Delta^\% c$ is equivalent to an additional production cost, then we have $p^{(CP)} = \mathcal{L}^T d(\Delta^\% c)v $, where $d:x \in \mathbb{R}^N \mapsto \text{diag} \left( {1 + x_1}, \dots, {1 + x_N} \right)$. We denote $\mathcal{L}^{(CP)}(\Delta^\% c):=\mathcal{L}^T d(\Delta^\% c)$ the CP Leontief operator with cost inflation $\Delta^\% c$ introduced as a GVA perturbation. We denote $\mathcal{L}^{(DP)}(\Delta^\% y):=\mathcal{L} d(\Delta^\% y)$ the DP Leontief operator with demand shock $\Delta^\% y$. 
+
+\paragraph{Cost pass-through rate} As said above, cost-push inflation occurs when the costs of GVA (e.g., wages, taxes) increase for businesses, leading them to raise prices for their goods and services. More precisely, when production cost increases by $\Delta c \in \mathbb{R}^n$ (by unit of production), to maintain their level of GVA, some firms or sectors have the ability to increase there prices to compensate, without losing market share: it is called \textit{market pricing power}, and may be approximated by the \textit{pass-through rate} (PTR) \cite{brissimis2007market}. The PTR is the degree to which a given change in cost causes a given final change in price, taking into account the price elasticity of demand,  $\epsilon^{y,p}$. In \cite{desnos2023climate}, they introduce a PTR, noted $\phi \in [0,1]^n$ into Leontief framework as follows:
+
+\begin{equation}
+    \Delta p^{(CP)}(\phi) = \mathcal{L}(\phi)\Delta c
+\label{eq:delta_p_phi}
+\end{equation}
+
+\noindent where $\mathcal{L}(\phi)=\left(I - A^T \Phi\right)^{-1} \Phi$ and $\Phi=\text{diag}(\phi)$. Proof is given in Appendix \ref{appendix:ptr_costpush}. It supposes that when an additional cost $\Delta c$ is introduced in the economy, a share $(I-\Phi) \Delta c$ is paid directly by the producers, deduced from its final GVA, while the rest will be transformed into inflation by propagating along the edges of the value chain according to market pricing power $\phi$, following Eq. \eqref{eq:delta_p_phi}. 
+
+\vspace{0.1cm}
+
+\paragraph{Relation with the inflation without feedbacks} In the situation described by equation \eqref{eq:leontief_exogenous_geosectors}, if we assume an inflationary shock to the exogenous sectors, denoted $\Delta p_\mathcal{X}$, we obtain the shock to endogenous prices described by equation \eqref{eq:exogenous_shock}, as shown in \cite {weber2024inflation}.
+
+\begin{align}
+    \Delta p_\mathcal{E}^\mathcal{X} = \left( I - A_{\mathcal{EE}}^T \right)^{-1} A_{\mathcal{XE}}^T \Delta p_\mathcal{X}
+\label{eq:exogenous_shock}
+\end{align}
+
+\noindent The term $A_{\mathcal{XE}}^T \Delta p_\mathcal{X}$ is the input of exogenous inflation into the endogenous economy, and the term $\left( I - A_{\mathcal{EE}}^T \right)^{-1}$ represents the endogenous price formation for concerned geosectors. The feedbacks create loops of self-generating inflation within the subgraph of endogenous geosectors. Hence, less sectors are affected, and the final global inflation is lower in Eq. \ref{eq:exogenous_shock} than in Eq. \ref{eq:perturbed_exogenous_leontief} or \ref{eq:perturbed_endogenous_leontief}, ceteris paribus. There is a relation between existence of exogenous geosectors and the principle of market pricing power expressed with the PTR, presented in Proposition \ref{proposition:feedbacks_ptr}. 
+
+\begin{proposition}
+The exogenous sectors model is equivalent to a constrained Leontief PTR where exogenous sectors $\mathcal{X}$ have perfect pass-through ($\phi_{\mathcal{X}} = 1$) and the network structure eliminates feedback loops ($A_{\mathcal{EX}}=0$).
+\label{proposition:feedbacks_ptr}
+\end{proposition}
+
+\noindent Proof is given in Appendix \ref{app:proof_feedbacks_ptr}. 
+Yet, once the exogenous inflation $\Delta p_\mathcal{X}$ has been diffused, the absence of feedback loop is equivalent to deleting the market pricing power of exogenous geosectors, like formalized in Proposition \ref{proposition:feedbacks_ptr_second}. 
+\begin{proposition}
+
+ We assume a PTR $\phi$ such that $\phi_\mathcal{X}=0$ and $\phi_\mathcal{E}=1$, we obtain the equality
+
+\[
+\Delta p_\mathcal{E}^\mathcal{X} =[\mathcal{L} (\phi) A^T \left( \Delta p  \odot (1 - \phi) \right)]_\mathcal{E}
+\]
+
+\noindent i.e., the inflation shock on exogenous sector can be modeled using Eq. \ref{eq:delta_p_phi} with $\Delta c := A^T \left( \Delta p  \odot (1 - \phi) \right) $. 
+\label{proposition:feedbacks_ptr_second}
+\end{proposition}
+
+
+\noindent Proof is given in Appendix \ref{app:proof_feedbacks_ptr_second}. $\Delta c := A^T \left( \Delta p  \odot (1 - \phi) \right)$ represents the introduction of the inflation due to exogenous sectors $\Delta p  \odot (1 - \phi)$ that passes in the whole economy, and in particular the endogenous sectors with one tour in the value chain, represented by $A^T$. Once transformed into an additional cost for endogenous sectors, the eventual feedbacks $\mathcal{E} \rightarrow \mathcal{X}$ disappears due to the structure of the economy represented by the graph $\Phi$ with no PTR (since not required without feedbacks) for exogenous factors. 
+
+\begin{remark}
+We note that Propositions \ref{proposition:feedbacks_ptr} and \ref{proposition:feedbacks_ptr_second} do not contradict each other, as the first proposition describes the structural equivalence between exogenous sectors and perfect pass-through with eliminated feedbacks, while the second proposition shows that once the initial shock has propagated, the subsequent dynamics can be modeled by temporarily setting the exogenous sectors' pass-through to zero, effectively capturing the one-way nature of the shock transmission without reciprocal effects. 
+\end{remark}
+
+\subsection{Perturbations of endogenous variables}
+\label{section:mark_up_framework}
+When the perturbation affects directly the endogenous variables, i.e., a shock of production $\Delta x$ (e.g., due to exogenous production capacity losses) or $\Delta p$ (e.g., due to exogenous inflation), it will affect the global economic equilibrium described by Leontief equations \eqref{eq:leontief_open}, given the demand and the GVA. 
+
+\paragraph{Endogenous perturbation} As formliazed, for example, in \cite{llop2008economic,mardones2020economic,desnos2023climate}, for small perturbations, new equilibrium sets as follows:
+
+\begin{equation}
+\label{eq:perturbed_endogenous_leontief}
+    \left\{\begin{aligned} 
+      \Delta x^{(MU)} &= \Delta^\% x \odot (Ax + y) \\ 
+      \Delta p^{(MU)} &= \Delta^\% p \odot (A^T p + v)
+    \end{aligned}\right. \Longrightarrow
+    \left\{\begin{aligned}
+     x^{(MU)} = x + \Delta x^{(MU)}  &\approx \left( D(\Delta^\% x) - A \right)^{-1}y   & (a)\\ 
+     p^{(MU)} = p + \Delta p^{(MU)}  &\approx \left( D(\Delta^\% p) - A^T \right)^{-1}v  & (b)
+    \end{aligned}\right. 
+\end{equation}
+
+\noindent where $D:x \in \mathbb{R}^N \mapsto \text{diag} \left( \frac{1}{1 + x_1}, \dots, \frac{1}{1 + x_N} \right)$. Elements of proof are given in Appendix \ref{appendix:proof_markup_leontief}. 
+
+\vspace{0.1cm}
+
+For the price Eq. \eqref{eq:perturbed_endogenous_leontief}, the strategy consisting in setting the prices of production by first calculating its total cost (GVA and intermediate consumption, i.e., total price) and then adding a predetermined percentage of that cost as a mark-up, is called \textit{mark-up} (MU) pricing. This is why we note $x^{(MU)}$ and $p^{(MU)}$ the perturbed endogenous variables. We note $\mathcal{L}^{(MU)}(\Delta)$ the new Leontief matrix after the introduction of a perturbation $\Delta$ with mark-up assumption, i.e., $\mathcal{L}^{(MU)}(\Delta) := \left( D(\Delta) - A \right)^{-1}$. 
+
+\begin{remark}
+We do not differenciate the notation for price and production like in (CP/DP) equations, since $\mathcal{L}^{(MU)}(\Delta)$ transposes naturally: $\mathcal{L}^{(MU)}(\Delta^\% x)$ represents the production Leontief operator, and $\mathcal{L}^{(MU)}(\Delta^\% p)^T$ represents the price Leontief operator.
+\end{remark}
+
+\paragraph{Conditions of stability on the perturbations} As explained above, the condition of stability of the Leontief model is fundamental, avoiding infinite feedback loops. When introducing a shock $\Delta^{\%}$ on values, we have to ensure that $\mathcal{L}^{(MU)}(\Delta^\%)$ is well-defined, in particular that it is a M-matrix such that $\mathcal{L}^{(MU)}(\Delta^\%)$ remains positive. To obtain such guarantee, we need to limit the size of the shocks such that $\rho(D(\Delta^\% p)^{-1} A^T)<1$ and $\rho(D(\Delta^\% x)^{-1} A)<1, \forall i$. Hence for high $\Delta^\%$, i.e., abnormally high inflation or production shocks, the economy would (theoretically) fall into an uncontrollable instability regime (with possible infinitely diverging feedback loops), which is not a plausible assumption here. 
+
+\vspace{0.1cm}
+
+\paragraph{Comparison between mark-up pricing and cost-push inflation} We compare the \textit{cost-push} and \textit{mark-up pricing} inflation. 
+Comparison is formalized in Proposition \ref{proposition:comparison_markup_costpush}. 
+
+\begin{proposition}
+\label{proposition:comparison_markup_costpush}
+We assume that the change in GVA, $\Delta v$, and the inflation, $\Delta p$, are both due to a shift in costs $\Delta^{\%} c$, applied equivalently on $p$ and $v$ respectively, i.e., $\Delta^{\%} p = \Delta^{\%} v = \Delta^{\%} c$. 
+    Under Leontief assumptions, if the condition of stability $\rho(D(\Delta^\% p)^{-1} A^T)<1$ stands, we have (entrywise)
+    
+    \begin{align}
+         \mathcal{L}^{(MU)}(\Delta^{\%} c) \geq \mathcal{L}^{(CP)}(\Delta^{\%} c)
+    \end{align}
+	
+    \noindent which implies that $\Delta p^{(MU)}(\Delta^\%c) \geq \Delta p^{(CP)}(\Delta^\%c)$. Cost-push inflation is lower than mark-up pricing inflation for equivalent relative shock $\Delta^{\%} c$.
+
+    Under a deflation assumption, i.e., $\Delta^{\%} c \in ]-1;0]$, the condition of stability is satisfied and the final inequality reverses. Cost-push deflation becomes higher than mark-up pricing deflation. 
+\end{proposition}
+
+\noindent Proof is detailed in Appendix \ref{appendix:comparison_markup_costpush}. It means that the assumption has a monotonic effect on inflation, hence on the subsequent perturbation of other economic values, including final demand (if demand is elastic) and total production. We illustrate these crossed effects in the Section \ref{sec:cross_effects}. We note that the deflation effect cited in Proposition \ref{proposition:comparison_markup_costpush} matches a situation in the production case, where stressing the production with $\Delta x=x\Delta^\% x$ consists in lowering the production capacities, i.e., $\Delta^\% x \leq 0$, illustrated in Section \ref{sec:use_cases_biodiversity}. 
+
+\vspace{0.1cm}
+
+\begin{remark}
+\label{remark:warning_cost_inflation}
+In Proposition \ref{proposition:comparison_markup_costpush}, the costs are in percentage, affecting prices or costs equivalently. For example, when we expect an inflation of $\Delta^{\%} c$, we may decide to apply it on prices under systemic exogenous inflation assumption, or on GVA under specific endogenous inflation assumption. If we assume that the changes in GVA $\Delta v$ and the inflation $\Delta p$ are both due to a shift in production costs $\Delta^{\%} c$ defined with respect to GVA $v$, i.e., $\Delta  p = \Delta v = v \odot \Delta^{\%} c$, the Proposition \ref{proposition:comparison_markup_costpush} does not hold anymore. With $\Delta^{\%}  p \leq \Delta^{\%} c= \text{diag}(v)^{-1} \Delta^{\%}  p$ (since $v \leq 1$), we cannot insure $\mathcal{L}^{(MU)}(\Delta^{\%} p) \geq \mathcal{L}^{(CP)}(\Delta^{\%} v)$. 
+
+\vspace{0.1cm}
+
+If we define $X := (D(\Delta^{\%} v) - D(\Delta^{\%} v) A^T)$ and $Y := D(\Delta^{\%} p) - A^T$, where $\Delta^{\%} v= \text{diag}(v)^{-1} \Delta^{\%}  p$, the inequality holds if $Y^{-1}v - X^{-1}v \geq 0$, or equivalently $Y^{-1}(X-Y)X^{-1}v \geq 0$. Since $Y^{-1} \geq 0$ and $X^{-1}v \geq 0$, we may focus on $(X-Y)$. To have $(X-Y) \geq 0$, the following condition must hold:
+
+\begin{align}
+A_{ii} \geq \frac{1 - v_i}{1 + \Delta^{\%} p_i}
+\label{eq:conditions_Aii}
+\end{align}
+
+\noindent Elements of proof are given in Appendix \ref{appendix:proof_conditions_Aii}. Yet, this condition is difficult to hold. We may find other conditions that take into account the "network effect". We note $z:=X^{-1}v \geq 0$. 
+
+\begin{align}
+(X-Y)z = \underbrace{(I - D(\Delta^{\%} v))A^Tz}_{\text{Positive network effect}} - \underbrace{(D(\Delta^{\%} p) - D(\Delta^{\%} v)) z}_{\text{Negative diagonal (local) effect}}
+\label{eq:network_diagonal_effect}
+\end{align}
+
+\noindent For the inequality \eqref{eq:network_diagonal_effect} to hold, the positive network effect must outweigh the diagonal effect, which is often the case in complex worldwide economies. 
+
+\end{remark}
+
+
+\paragraph{Cost pass-through rate} The current modeling framework assumes a full cost passing. Under the assumption that the exogenous inflation applies both on intermediate consumption and GVA, we may extend the framework as follows. As above, $\phi$ represents the share of total inflation diffused on the value chain, the rest $1 - \phi$ being absorbed by (companies composing) geosectors. Hence, mixing Eq. \eqref{eq:perturbed_endogenous_leontief}(b) and Eq. \eqref{eq:delta_p_phi}, we obtain the following Leontief operator
+
+\begin{align}
+\label{eq:perturbed_endogenous_leontief_phi}
+    \mathcal{L}^{(MU)}(\Delta^\% p, \phi)  = \left( D(\Phi \Delta^\% p) - A^T \Phi \right)^{-1} \Phi
+\end{align}
+
+\noindent such that $p^{(MU)}(\Delta^\% p)=\mathcal{L}^{(MU)}(\Delta^\% p, \phi) v$. Proof is similar to Eq. \eqref{eq:delta_p_phi} (see Appendix \ref{appendix:ptr_costpush}), but in a new economic equilibrium defined by Eq. \eqref{eq:perturbed_endogenous_leontief}(b). 
+
+\subsection{Perturbation of intermediary consumption}
+
+A third way to shift the equilibrium assumes that only the intermediary consumption (IC) and intermediate prices (IP) are affected respectively by production shock $\Delta^\% x$ or price shock $\Delta^\% p$, that will affect the global economic equilibrium, given the demand and the GVA. 
+
+\paragraph{Intermediary consumption perturbation} As formalized, for example, in \cite{desnos2023climate}, for small perturbations, new equilibrium sets as follows:
+
+\begin{equation}
+\label{eq:perturbed_intermediary_leontief}
+    \left\{\begin{aligned}
+     x^{(IC)} &= A \left (x + \Delta x^{(IC)} \right) + y \\ 
+     p^{(IP)} &= A^T \left (p + \Delta p^{(IP)} \right) + v
+    \end{aligned}\right. 
+    \Longrightarrow
+    \left\{\begin{aligned}
+     x + \Delta x^{(IC)}  &\approx \left( I - A d(\Delta^\% x) \right)^{-1}y   & (a)\\ 
+     p + \Delta p^{(IP)}  &\approx \left( I - A^T d(\Delta^\% p) \right)^{-1}v  & (b)
+    \end{aligned}\right. 
+\end{equation}
+
+\noindent Elements of proof are given in Appendix \ref{appendix:proof_competitive_leontief}. We denote $\mathcal{L}^{(IP)}(\Delta^\% p) := \left( I - A d(\Delta^\% p) \right)^{-1}$ the IP Leontief operator with intermediate price inflation $\Delta^\% p$. We denote $\mathcal{L}^{(IC)}(\Delta^\% x):=\mathcal{L} d(\Delta^\% y)$ the IC Leontief operator with production/consumption shock $\Delta^\% x$. 
+
+\paragraph{Conditions of stability on the perturbations} When introducing a shock $\Delta^{\%}$ on values, we have to ensure that $\mathcal{L}^{(IP)}(\Delta^\%)$ and $\mathcal{L}^{(IC)}(\Delta^\%)$ are well-defined, as presented in Section \ref{sec:leontief_model}. To obtain such guarantee, we need to limit the size of the shocks such that $\rho( A^T d(\Delta^\% p))<1$ and $\rho(A d(\Delta^\% x))<1, \forall i$. Hence for high shocks, i.e., abnormally high inflation or production stress, the economy would (theoretically) fall into an uncontrollable instability regime (with possible infinitely diverging feedback loops), which is not a plausible assumption here. 
+
+\paragraph{Comparison of IC inflation with mark-up pricing}
+With this formulation, we can compare the IC and MU inflation, as formalized in Proposition \ref{proposition:comparison_intermediary_markup}. 
+
+\begin{proposition}
+\label{proposition:comparison_intermediary_markup}
+We assume that the change in GVA, $\Delta v$, and the inflation, $\Delta p$, are both due to a shift in costs $\Delta^{\%} c$, applied equivalently on $p$ and $v$ respectively, i.e., $\Delta^{\%} p = \Delta^{\%} v = \Delta^{\%} c$. 
+If $A$ is non-negative with $\rho(A)<1$, $v \geq 0$, $\Delta^{\%} c \geq 0$ (positive cost inflation) and $\rho(A^T d(\Delta^\%c)) < 1$, we have
+
+    \begin{align}
+        \mathcal{L}^{(MU)}(\Delta^\% c) \geq \mathcal{L}^{(IC)}(\Delta^\% c)
+    \end{align}
+
+    \noindent which implies that $\Delta p^{(MU)}(\Delta^\% c) \geq \Delta p^{(IC)}(\Delta^\% c)$. It means that intermediary pricing inflation due to cost inflation $\Delta^\% c$ is always lower than mark-up pricing inflation.
+
+    Under a cost deflation assumption, i.e., $\Delta^{\%} c \in ]-1;0]$, the condition of stability is satisfied and the inequalities reverse. Intermediary pricing deflation becomes higher than mark-up deflation. 
+\end{proposition}
+
+\noindent Proof is detailed in Appendix \ref{appendix:comparison_intermediary_markup}. It implies that the assumption also has a monotonic effect on inflation compared to cost-push approach, like mark-up pricing. Remark \ref{remark:warning_cost_inflation} also applies here. 
+
+\paragraph{Comparison of IC inflation with CP inflation}
+While perturbing the total price/production has higher impact than perturbing part of price/production equations was intuitive, the intuition behind a comparison between perturbing inputs or intermediate value is less clear. We compare here the quantities ${\mathcal{L}^{(IC)}}(\Delta^\% c)^T v$ and ${\mathcal{L}^{(CP)}}(\Delta^\% c)^T v$, i.e., $\left( I - A^T d(\Delta^\% c) \right)^{-1}v$ and $(I-A^T)^{-1} d(\Delta^\% c) v$. We find in Proposition \ref{proposition:comparison_intermediary_costpush} no absolute ordering, but that the difference is lower bounded by a negative vector that depends on $v$ and $d$. 
+
+\begin{proposition}
+\label{proposition:comparison_intermediary_costpush}
+    Under the assumption of Proposition \ref{proposition:comparison_intermediary_markup}, we have (entrywise)
+
+    \begin{align}
+        {\mathcal{L}^{(IC)}} (\Delta^\% c)- {\mathcal{L}^{(CP)}}(\Delta^\% c) \geq I - d(\Delta^\% c) = \text{diag} ( \Delta^\% c )
+    \end{align}
+
+    \noindent which implies that $\Delta p^{(IC)}(\Delta^\% c) - \Delta p^{(CP)}(\Delta^\% c) \geq v - d(\Delta^\% c)v$. 
+\end{proposition}
+
+\noindent A proof is given in Appendix \ref{appendix:comparison_intermediary_costpush}. 
+
+\vspace{0.1cm}
+
+
+\paragraph{Cost pass-through rate} The current modeling framework assumes a full cost passing. Under the assumption that the inflation applies only on intermediate consumption, we may extend the framework as follows. As above, $\phi$ represents the share of total inflation diffused on the value chain, the rest $1 - \phi$ being absorbed by (companies composing) geosectors. Hence, mixing Eq. \eqref{eq:perturbed_intermediary_leontief}(b) and Eq. \eqref{eq:delta_p_phi}, we obtain the following Leontief operator
+
+\begin{align}
+\label{eq:perturbed_intermediary_leontief_phi}
+    \mathcal{L}^{(IC)}(\Delta^\% p, \phi)  = \left( I - A^T \Phi d(\Phi \Delta^\% p) \right)^{-1} \Phi
+\end{align}
+
+\noindent such that $p^{(IC)}(\Delta^\% p)=\mathcal{L}^{(IC)}(\Delta^\% p, \phi) v$. Proof is similar to Eq. \eqref{eq:delta_p_phi} (see Appendix \ref{appendix:ptr_costpush}), but in a new economic equilibrium defined by Eq. \eqref{eq:perturbed_intermediary_leontief}(b). 
+
+\subsection{A unified perturbation framework analysis}
+\label{sec:unified_framework}
+
+We have seen three ways to stress Leontief equations with price/cost or production/demand shock. Eq. \eqref{eq:unified_perturbation} summarizes the different stressing frameworks, with parameters given in Table \ref{tab:perturbation_models}. 
+
+\begin{equation}
+\label{eq:unified_perturbation}
+\left\{
+\begin{aligned}
+x(L_x,R_x,S_x) &= (L_x - A R_x)^{-1} S_x y, \\ 
+p(L_p,R_p,S_p) &= (L_p - A^T R_p)^{-1} S_p v.
+\end{aligned}
+\right.
+\end{equation}
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lccc}
+\hline
+Model & $L$ & $R$ & $S$ \\
+\hline
+baseline     & $I$ & $I$ & $I$ \\
+mark-up (M)      & $D(\Delta^{\%})$ & $I$ & $I$ \\
+intermediate (IC) & $I$ & $d(\Delta^{\%})$ & $I$ \\
+cost-push (P)   & $I$ & $I$ & $d(\Delta^{\%})$ \\
+\hline
+\end{tabular}
+\caption{Comparison of perturbation structures across models}
+\label{tab:perturbation_models}
+\end{table}
+
+\noindent With sufficient conviction on the type of costs applied on Leontief economic equilibrium, we may split $\Delta c$ into three parts distributed in $L$, $R$ and $S$. 
+
+\section{Crossed effects of perturbations}
+\label{sec:cross_effects}
+
+% While the conjunction of all perturbations together may be unlikely, since environmental risks are systemic, hence concern all parts of the economy through several transmission channels, it may append. 
+
+\paragraph{The impact of costs $\Delta c$ on GVA} For a given company, both producer and consumer of other's production, the total loss of GVA due to cost $\Delta c$, all things being equal (i.e., in particular, no adjustment of price), will be
+
+\begin{equation}
+    \Delta v = \underbrace{\mathcal{L}^T \Delta p(\phi)}_{\text{Value chain inflation}} - \underbrace{\left(I - \Phi\right) \Delta c}_{\text{Direct costs}} = \left[ \left(I - A^T\right) \mathcal{L}(\phi) - (I - \Phi) \right] \Delta c
+\label{eq:delta_v_phi}
+\end{equation}
+
+\noindent as defined in \cite{desnos2023climate}. The equation is then a balance between direct costs (negative effect) and value chain inflation (positive effect). For a company with high PTR, the effect may be globally positive on GVA due to inflation (all other things being equal). It is called \textit{profit inflation} \cite{storm2023profit}, defined as an increase in the gross output price that is caused by an increase in the profit mark-up (keeping all other unit cost items constant). It occurs when corporate revenues grow faster than input costs and wages during inflationary periods, and is generally reserved to companies with high pricing power (i.e., high PTR). 
+
+\vspace{0.1cm}
+
+However, inflation generally generates demand shifts, reducing output and therefore income in all sectors as a value chain effect. The notion of final demand elasticity is linked to RTP, as shown below. The final effect on total GVA is described next.
+
+\paragraph{The impact of price shock $\Delta p$ on final demand} A traditional crossover effect between production and price is related to changes in demand related to inflation, often called \textit{price elasticity of demand} (PED). PED measures how the quantity demanded of a good or service responds to a change in its price. PED, noted $\epsilon^{y,p}$ is defined as in Eq. \eqref{eq:ped}.
+
+\begin{equation}
+    \epsilon^{y,p} = \frac{\Delta y / y}{\Delta p / p}
+\label{eq:ped}
+\end{equation}
+
+% https://www.concorrencia.pt/sites/default/files/2021-06/Pass-through_and_competition_Christos-Genakos.pdf
+
+\noindent The PED is a known indicator for many consumption products, sometimes for sectors (under the assumption of homogeneous unitary production, as in Leontief framework). 
+
+\vspace{0.1cm}
+
+When not available at sectoral level, we infer PED from the PTR. %Based on \cite{rbb2014cost}, where authors develop a deep understanding of the cost PTR, and related it with elasticities of demand and supply, in different market structures (perfect competition, monopoly, oligopoly). Details of the different assumptions are given in Appendix \ref{app:details_ptr_structure}
+In \cite{weyl2013pass}, authors developed a general formula that relates PED to PTR, given in Eq. \eqref{eq:ptr_elasticities}
+
+\begin{equation}
+\label{eq:ptr_elasticities}
+    \phi := \frac{dp}{dc} = \left( 1 + \frac{\theta}{\epsilon^{\theta,x}}+ \frac{\theta}{\epsilon^{ms,p}} - \frac{\epsilon^{y,p} - \theta}{\epsilon^{x,p}} \right)^{-1}
+\end{equation}
+
+\noindent where $c$ is the production cost, $\theta$ 
+%=\frac{p-c}{p}\epsilon^{y}
+is a \textit{conduct parameter} (is typically used to measure competitiveness, i.e., the extent to which firms in a market behave competitively, cooperatively, or monopolistically.), and $\epsilon^y$, $\epsilon^x$, $\epsilon_\theta$ and $\epsilon^{p}$ are respectively the elasticities of demand (w.r.t. price $p$), production (w.r.t. price $p$), conduct (w.r.t. production $x$) and price (w.r.t. demand $y$). All details to obtain this formula are supplied in \cite{weyl2013pass,rbb2014cost}. In particular, by definition of the conduct parameter, they precise that $\theta$ takes value depending on the market structure: $\theta=1$ for a monopoly, $\theta=0$ for perfect competition, $\theta \in [0,1]$ for oligopolistic situations (e.g., $\theta=1/N$ in a Cournot competition between $N$ firms). 
+
+In a our situation, we are interested in a systemic introduction of additional production cost at geosectoral level. As in \cite{desnos2023climate}, where they assume a perfect competition setting, since at geosectoral level we have enough companies to globally converge towards far-from-monopolistic situation (i.e., $N \rightarrow +\infty$ in Cournot-like competition). Hence, we have $\theta=0$ and we obtain
+
+\begin{equation}
+\label{eq:ptr_perfect_competition}
+    \phi \approx \left( 1 - \frac{\epsilon^{y,p}}{\epsilon^{x,p}} \right)^{-1}
+\end{equation}
+
+\noindent In \cite{desnos2023climate,roncalli2024economic}, authors assume a unitary price elasticity of supply, i.e., $\epsilon^{x,p}=1$ hence with an elasticity of demand being fully determined by the PTR. This approximation is acceptable when we consider long-run equilibrium, in particular for competitive markets with flexible resources or when marginal costs are constant. Yet, in the short-run, we may have $\epsilon^{x,p} > 1$ for scalable production, like services with flexible labor allocation, and $\epsilon^{x,p} < 1$ for non-scalable production, such as sectors dependent on natural resources (e.g. extractive industries), seasonal effects (e.g. agriculture) or rare products (e.g., art), which can however be offset by stocks if disposable. Hence, the solution is more complicated. 
+
+\vspace{0.1cm}
+
+Another standard assumption used by the NGFS (Network for Greening the Financial System) is $\epsilon^{x,p}=-\epsilon^{y,p}$, i.e., $\phi=0.5$, saying that \textit{"It is assumed that 50\% of the carbon price is passed directly to consumer prices."\footnote{\url{https://www.ngfs.net/ngfs-scenarios-portal/faq/}}}. This assumption works is several situations: monopoly with constant marginal cost and linear demand, perfect competition with linear demand and supply with the same slope. It is 
+
+\vspace{0.1cm}
+
+At sectoral level, the PTR are often known. In particular, for climate-related subjects, \cite{sautel2022tarification} has proposed a study in which an estimate of sectoral PTRs is given. For our exercise, we use their estimates. A stochastic vision of the PTR is developed in \cite{desnos2023climate}. Details of the relation between PTR and elasticities, used in practice to define one from the other, are given in Appendix \ref{appendix:ptr_formula}. 
+
+\paragraph{The impact of price shock $\Delta p$ on production} The production can be affected by a demand shift due to inflation, using price elasticity of demand $\epsilon^{y,p}$, i.e., $\Delta y = \text{diag}(p)^{-1} \epsilon^{y,p} \odot \Delta p \odot y$. Applying the Eq. \eqref{eq:leontief_open}(a), we obtain a shock of production $\Delta x$
+
+\begin{align}
+    \Delta x = (I - A)^{-1} \left( \text{diag}(p)^{-1} \epsilon^{y,p} \odot \Delta p \odot y \right)
+\label{eq:delta_x_p}
+\end{align}
+
+
+\paragraph{The impact of additional cost $\Delta c$ on final GVA} We have seen that cost is spread between price increase and GVA decrease. Considering Eq. \eqref{eq:delta_v_phi}, we may imagine that the problem is already solved. Yet, we have seen that cost have impact on price (given a pass-through rate) and a price shock has an effect on demand, hence on production. Since the total GVA $v \odot x$ depends on total production, then the GVA shock is $\Delta (v \odot x)$. In \cite{desnos2023climate}, they decompose the effect of price shock on final GVA as follows
+
+\begin{align}
+   \Delta (v \odot x) & = (x + \Delta x) \odot (v + \Delta v) - x \odot v \label{eq:delta_xv}
+   \\
+     & = (x + \Delta x) \odot \Delta v + \Delta x \odot v \hspace{0.5cm} \text{We apply \eqref{eq:delta_v_phi} since shock is due to $\Delta c$.} \nonumber
+     \\
+     & = \underbrace{(x + \Delta x) \odot \Delta p(\phi)}_{\text{(a)}}
+     - \underbrace{(x + \Delta x) \odot A^T \Delta p(\phi)}_{\text{(b)}} 
+     + \underbrace{\Delta x \odot p}_{\text{(c)}} 
+     - \underbrace{\Delta x \odot A^T p}_{\text{(d)}} - \underbrace{ (I - \Phi) \left[ (x + \Delta x) \odot \Delta c \right]}_{(e)} \nonumber
+\end{align}
+
+\noindent where $\Delta x$ is given by Eq. \eqref{eq:delta_x_p}, such that $\Delta (v \odot x)$ depends only on $\Delta p$ (plus initial values). (a) and (b) are the effects of price shift respectively from direct and upstream value chain applied on final (post stress) production, (c) and (d) are the effects of production stress, at current price, for respectively final and intermediary consumption, (e) is the part of the additional cost directly paid by producers, then deduced from their GVA. To obtain the shock per unit of current production, we have to multiply (on the left) by $\text{diag}(x)^{-1}$, i.e., normalize by the pre-stress production. To have the new GVA $v$, we compute $\text{diag}(x + \Delta x)^{-1} \left(\Delta (v \odot x) + x \odot v \right)$
+
+\paragraph{Inflation equivalence of production shocks}
+Under Ghosh model's assumptions, we may obtain a $\Delta x$ directly from $\Delta v$, itself affected by the production costs following Eq. \eqref{eq:delta_v_phi}. We would obtain
+
+\begin{align*}
+	\Delta (v \odot x) & = (x + \Delta x) \odot (v + \Delta v) - x \odot v 
+	\\
+	& = (x + G^T \Delta v) \odot \Delta v + (G^T \Delta v) \odot v 
+\end{align*}
+	
+\noindent where $\Delta v$ is defined in Eq. \eqref{eq:delta_v_phi}. The main step that would disappear compared to previous solution \eqref{eq:delta_xv} is the price-demand elasticity \eqref{eq:delta_x_p}. Hence, the output would not take into account the loss of final demand due to inflation, hence does not assess the same phenomenon. Here, it would inform on the loss of final production due to a loss of production inputs (GVA measuring the value a company adds to the purchase of intermediate goods for producing). It is not an economic effect, but a "modeling" effect. But using this approach, we can infer the inflation due to $\Delta v$ using Leontief. 
+
+\vspace{0.1cm}
+
+Finally, going further in the acceptation of modelling assumptions, we can obtain the effect of a direct and exogenous production shock $\Delta x$ on inflation by combining the Ghosh and Leontief models, such that $\Delta p = \mathcal{L} \cdot (I - B^T) \Delta x$. 
+
+
+\section{Environmental use-cases}
+\label{sec:use_cases}
+
+In this section, we display results of environmental-related stress testing using the different shades of IO modeling presented above. We use FIGARO IO database, aggregated at NACE1 level in each of the 44 countries. The other IODs are presented in Appendix \ref{appendix:io_databases}. We note that the theoretical framework and results presented in the paper are agnostic to the choice of the database. Yet, in practice, changing the data may change the results. Hence, the choice of the database is an assumption to monitor. 
+
+\subsection{Cost shocks with carbon price}
+
+\paragraph{Carbon price inflation} Carbon pricing is an instrument that aims to address the negative externalities of GHG emissions (known as \textit{social carbon cost} \cite{change2014synthesis}). GHG emitters must decide whether to pay a carbon price or to reduce their emissions. When engaging a transition, sudden increase in the carbon price is plausible and may have important implications for the global economy. 
+
+\vspace{0.1cm}
+
+In this section, we manipulate the different equations above and the effect of the introduction of a carbon price into the economy. For a carbon price vector $\tau \in \mathbb{R}^n$ (in \euro/tCO2e), and the GHG intensity vector $G \in \mathbb{R}^n$ (in tCO2/\euro) computed as the ratio of GHG emissions $\mathcal{E}$ and the total output $x$, i.e., $G:=\mathcal{E}/x$, we obtain a vector of cost variation rate $\Delta c = G \odot \tau$ (without unit). When not specified, we assume by default that $\tau=100$ and $\phi_i=100\%$ (i.e., the cost inflation is fully transformed into price inflation) for all geosectors $i$. 
+
+\vspace{0.1cm}
+
+We first consider the effect of carbon price on inflation. This topic as been massively researched and studies with IO framework recently \cite{gemechu2014economic,mardones2020economic,cahen2021capital,roncalli2024economic}, with applications for market or credit stress testing for example shown in \cite{adenot2022cascading,desnos2023climate,pineau2024sectoral}.
+We have seen that there are two main equations \eqref{eq:perturbed_exogenous_leontief} and \eqref{eq:perturbed_endogenous_leontief} with distinct assumption (cost-push versus market-up pricing). In Proposition \ref{proposition:comparison_markup_costpush}, we have shown that mark-up pricing inflation is always higher than cost-push. In Figure \ref{fig:inflation_carbon}, we show the effect of several carbon prices $\tau$ (here, same price for all geosectors) on final price, and compare the two assumptions. In particular, we observe an illustration of Proposition \ref{proposition:comparison_markup_costpush} in the right figure. The difference in total inflation is 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\linewidth]{deltap_carbon.png}
+    \includegraphics[width=0.49\linewidth]{deltap_carbon_comparisons.png}
+    \caption{Inflation related to carbon price (in x-axis). We compare the carbon price with respectively cost-push (Eq. \eqref{eq:perturbed_exogenous_leontief}) and mark-up pricing (Eq. \eqref{eq:perturbed_endogenous_leontief}) assumption. We observe the distribution of geosectoral inflation for each assumption and different carbon prices. We observe in the right figure the result of Proposition \ref{proposition:comparison_markup_costpush}. }
+    \label{fig:inflation_carbon}
+\end{figure}
+
+We see in particular in right figure that the difference between IC and CP is not positively distributed. In Figure \ref{fig:diff_deltap_P_vs_IC_adjusted}, we show the effect of adding the adustment $v - d(\Delta^\% c) v$ of Proposition \ref{proposition:comparison_intermediary_costpush}. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\linewidth]{diff_deltap_P_vs_IC_adjusted.png}
+    \caption{Effect of adding the adustment $v - d(\Delta^\% c) v$ of Proposition \ref{proposition:comparison_intermediary_costpush} to the difference between IC and CP inflation. We observe that, effectively, the difference plus the adustment is positive everywhere. }
+    \label{fig:diff_deltap_P_vs_IC_adjusted}
+\end{figure}
+
+
+\paragraph{Effect of pass-through rates} For the previous experiments we have used a full pass-through-rate, to illustrate the inflation effect of passing cost to prices. Yet, in general the companies have to pay part of their additional costs, in particular when this cost is due to a general regulatory framework like the carbon pricing. By varying the PTR $\phi$, we obtain a varying distributions of the geosectoral inflation, as shown in Figure \ref{fig:diff_deltap_carbon_phi}. We observe that the important sectors $C$ (Manufacturing) and $D$ (Electricity, gas, steam and air conditioning supply), and to a lesser extend the sector $H$ (Transporting and storage) generate much more inflation than others when passing their costs in their customers. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\linewidth]{inflation_by_ptr.png}
+        \includegraphics[width=0.49\linewidth]{diff_p_ptr_sector.png}
+    \caption{Distribution of the geosectoral inflation for several levels of PTR. We observe in the left figure the effect of the PTR of sector $i$ on all sectors except $i$. }
+    \label{fig:diff_deltap_carbon_phi}
+\end{figure}
+
+\paragraph{Effect of feedbacks} As in \cite{weber2025carbon}, the inflation generated by the increase of the carbon price has a different effect depending on the feedbacks. We have seen in Eq. \eqref{eq:exogenous_shock} that when geosectors are exempted of feedbacks, the total inflation is lower than in fully connected value chain. We observe this phenomenon in Figure \ref{fig:feedbacks_effect}. We observe in particular that the sectoral effect of exclusion from value chain effect (making them exogenous) are sorted similarly than the effect of increasing the PTR, shown in Figure \ref{fig:diff_deltap_carbon_phi}. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\linewidth]{prices_exogenous_sectors.png}
+    \includegraphics[width=0.49\linewidth]{prices_exogenous_countries.png}
+    \caption{Average sectoral (left) and geographical (right) effect of feedbacks versus absence of feedbacks. As expected, the feedbacks amplify the inflation effect, in particular in sectors or regions that supply a large part of the economy (e.g., energy D or China CN)}. 
+    \label{fig:feedbacks_effect}
+\end{figure}
+
+\paragraph{Profit inflation and the paradox of transition costs} We have introduced earlier the notion of \textit{profit inflation}, that consists in, for companies or sectors with high PTR, growing their revenues faster than their production costs in inflation situations. This creates a paradox in the context of climate transition: while the transition entails significant adjustment and compliance costs \textemdash especially for carbon-intensive sectors \textemdash some firms may benefit in the short term from rising input or carbon prices by passing them onto consumers, thereby increasing their profit margins. This dynamic has been observed during periods of energy price shocks, where certain actors in the energy and industrial sectors have experienced windfall profits under the guise of inflationary pressures \cite{egli2024harnessing}. This effect, using Eq. \eqref{eq:delta_xv} is illustrated in Figure \ref{fig:ptr_profit_inflation}. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.65\linewidth]{loss_gva_direct_indirect.png}
+    \caption{Distribution of the loss of GVA (in \% of the production $x$). We observe the effect of PTR $\phi$ (same PTR for all geosectors). In particular, the effect on GVA, for high PTR becomes positive. }
+    \label{fig:ptr_profit_inflation}
+\end{figure}
+
+\paragraph{Challenging the first assumption of Proposition \ref{proposition:comparison_markup_costpush}}
+Related to Remark \ref{remark:warning_cost_inflation}, we may compare the effect of the basic assumption of Proposition \ref{proposition:comparison_markup_costpush}, i.e., that we apply the same cost increase rate $\Delta^{\%} c$ on value-added and price vectors, i.e., $\Delta^{\%} p = \Delta^{\%} v = \Delta^{\%} c$, with the assumption that in value the shock is the same, i.e., $\Delta p = \Delta v$. Hence, we have $\Delta^{\%} p \leq \Delta^{\%} v = \Delta^{\%} p / v$. Result is shown in Figure \ref{fig:dp_dv}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\linewidth]{cp_dp_dv.png}
+    \includegraphics[width=0.49\linewidth]{mu_cp_dp_dv.png}
+    \caption{Comparison of the effect $\Delta^{\%} p$ and $\Delta^{\%} v$ on CP inflation (left), and comparison between MU and CP inflation for each assumption (right). We note that, although the order between MU and CP is not guaranteed in this case (see Remark \ref{remark:warning_cost_inflation}), MU remains greater than CP.}. 
+    \label{fig:dp_dv}
+\end{figure}
+
+\noindent In practice, with real data, the network effect outweights the diagonal effect in Eq. \ref{eq:network_diagonal_effect}. In an strongly connected economy, the quantity of exchange production has important weight. 
+
+\subsection{Production capacity losses due to biodiversity erosion} 
+\label{sec:use_cases_biodiversity}
+
+From the very beginning, two decades after its seminal paper \cite{leontief1949structural}, Leontief proposed to use its modeling framework for envirnomental issues, for example the pollution generated as by-product of economic activities \cite{leontief1970environmental}, considering two economic sectors taking into account the production of good and bad outputs (pollution) and includes a pollution abatement sector, or a linkage between IO tables with natural resource inputs, the transformation of the resources in the production process and the assessment of the formation of residuals resulting from the economic activity \cite{leontief1973national}.
+Recently, Leontief framework has been used to model the effect of biodiversity disappearance on geosectoral production \cite{boldrini2023living}, based on the concept of \textit{dependencies to ecosystem services}. The concept of dependencies to ecosystem services refers to the reliance of human activities, communities, and economies on the benefits provided by natural ecosystems \cite{maes2016mapping}. Ecosystem services are the direct and indirect contributions of ecosystems to human activities and well-being, and they include provisioning services (products obtained from ecosystems, such as food, fresh water, wood, fiber, genetic resources, and medicines), regulating services (material benefits obtained from the regulation of ecosystem processes, including climate regulation, disease control, water purification, and pollination), cultural services: non-material benefits people obtain from ecosystems through spiritual enrichment, cognitive development, reflection, recreation, and aesthetic experiences) and supporting services (services that are necessary for the production of all other ecosystem services, such as soil formation, photosynthesis, and nutrient cycling) \cite{assessment2001millennium}. Dependencies to ecosystem services mean that human societies depend on these services for survival, health, economic activity, and overall quality of life.
+
+\vspace{0.1cm}
+
+To assess the potential importance of the contribution an ecosystem service makes to a production process, and the materiality of the impact if this service is disrupted, two aspects are considered \cite{mcconnell2005valuing}. Firstly, the functionality in the production process is lost if the ecosystem service is disrupted. If the loss of functionality is limited, the production process can continue as it is or with minor modifications; if it is moderate, the production process can only continue with significant modifications (e.g. slower production or the use of substitute products); if it is severe, the disruption to the provision of the service prevents the production process. Secondly, we want to assess the extent of the financial loss due to the loss of functionality of the production process. If it is limited, the disruption of the production process does not materially affect the company's profits; if it is moderate, the disruption of the production process materially affects the company's profits; if it is severe, there is a reasonable possibility that the disruption of the production process will affect the company's financial viability. The assessment of the relative importance of dependence reflects these two considerations. As mentioned in \cite{ENCORE}, \textit{the dependency materiality assessment reflects both these considerations; a very high materiality rating means that the loss of functionality is severe and that the expected financial impact is severe as well}.
+
+\vspace{0.1cm}
+
+In \cite{pineau2024nature}, authors extended the principle to four additional natural assets, and used it as in Eq. \eqref{eq:perturbed_endogenous_leontief}(a) to recompute the economic equilibrium when a geosectoral perturbation $\Delta^\% x$ is due to nature erosion, using \textit{mark-up} (MU) framework detailed in Section \ref{section:mark_up_framework}. As exposed above and in \cite{pineau2024nature}, we may use the expected production capacity losses as GVA losses or a revenue losses, to be transformed in macrofinancial variables of interest (e.g., in equity prices, using discount models whose cashflows may be altered by revenue losses). We propose another possibility, combining Ghosh model (Eq. \eqref{eq:ghosh_model}) and Leontief GVA stress test framework (Eq. \eqref{eq:delta_xv}). We therefore transform the loss of production $\Delta x$ into an equivalent loss of GVA (i.e., the loss of GVA that would explain the loss in production capacities). This assumption makes sense since, like the ecosystem services, the GVA is a necessary input for production. And while the dependency of production to ecosystem services is estimated by ENCORE methodology \cite{ENCORE}, the dependency of production to GVA is given by Ghosh model, and then an inflation effect using Leontief model \eqref{eq:perturbed_endogenous_leontief}(b). 
+
+\vspace{0.1cm}
+
+For the illustration, we use only the losses due to biodiversity disturbance. As in \cite{boldrini2023living, pineau2024nature} we use the \textit{mean species abundance} (MSA) to approximate the state of biodioversity. The MSA is an ecological metric to represent the average population size of species compared to a pristine state, to quantify the integrity of species or biological animal diversity in nature. The MSA has been developed within the GLOBIO model \cite{Alkemade2009} which analyzes the human impact on ecosystems/ MSA maps have been projected on socioeconomic scenarios \cite{Schipper2020}. We use here the scenario SSP5 - RCP8.5, that corresponds to a good human development with massive use of hydrocarbures, high pressures on nature, and global warming around $5^\circ C$. 
+We obtain the results presented in Figure \ref{fig:inflation_by_ptr_msa}.
+
+\begin{figure}
+    \centering
+    	\includegraphics[width=0.49\linewidth]{inflation_by_ptr_msa.png}
+	\includegraphics[width=0.49\linewidth]{loss_gva_direct_indirect_msa.png}
+    \caption{Combining Ghosh model (Eq. \eqref{eq:ghosh_model}) and Leontief GVA stress test framework (Eq. \eqref{eq:delta_xv}), we obtain an inflation effect of production capacity losses due to biodiversity erosion (scenario RCP8.5 in 2030). In the left-hand figure, we observe the inflation for several PTR $\phi$. In the right-hand figure, we decompose the inflation into direct and indirect contribution, following Eq. \eqref{eq:delta_xv}. }
+    \label{fig:inflation_by_ptr_msa}
+\end{figure}
+
+\section{Conclusion}
+
+We examined the input-output modeling framework, particularly Leontief models, through the lens of geosectoral stress tests. A comparison of different assumptions regarding the introduction of the shock and a series of applications were proposed. In particular, when an inflationary shock is assumed, stress can be introduced at the level of value added, intermediate consumption, or overall producer price formation. A comparison of the impact of this choice was necessary. These new theoretical results could contribute to a more judicious use of this framework within financial institutions subject to stress testing requirements, including environmental-related exercises for which input-output modeling is already an essential component. 
+
+
+
+\newpage
+
+\paragraph{Funding Declaration} No funding to declare for this paper. 
+
+\newpage
+
+\bibliographystyle{plain}
+\bibliography{main_vc}
+
+\newpage
+
+\appendix
+
+\section{Leontief assumptions}
+\label{appendix:leontief_assumptions}
+
+The Leontief input-output model is typically expressed as 
+$\mathbf{x} = \mathbf{A} \mathbf{x} + \mathbf{y}$
+where \( \mathbf{x} \) is the vector of gross outputs, \( \mathbf{A} \) is the matrix of input coefficients, and \( \mathbf{y} \) is the vector of final demand. A foundational assumption is that of \emph{fixed input coefficients}, implying that the input requirements per unit of output are constant and represented by the elements \( a_{ij} \) of matrix \( \mathbf{A} \); this reflects a \emph{linear production function} with no possibility of input substitution. The model also operates under \emph{constant returns to scale}, where doubling all inputs leads to a proportional doubling of output. It presumes \emph{no supply constraints}, allowing industries to meet any level of demand without resource or capacity limitations. The model treats all outputs as \emph{homogeneous}, so each component \( x_i \) of the output vector refers to a uniform product from sector \( i \). \emph{Inter-industry interdependence} is embedded in the structure of \( \mathbf{A} \), where each element \( a_{ij} \) quantifies the input from sector \( i \) required per unit output of sector \( j \), thus linking sectors through input-output flows. The model is \emph{static}, analyzing the equilibrium relationship at a fixed point in time and excluding dynamic factors such as technological progress or investment. Finally, \emph{final demand} \( \mathbf{y} \) is treated as \emph{exogenous}, meaning it is specified outside the system and drives the determination of gross output \( \mathbf{x} \) through the inverse solution $\mathbf{x} = (I - \mathbf{A})^{-1} \mathbf{y}$. 
+
+\vspace{0.1cm}
+
+For the price side, expressed as 
+$\mathbf{p} = \mathbf{A}^\top \mathbf{p} + \mathbf{v}$
+where \( \mathbf{p} \in \mathbb{R}^n \) is the vector of output prices by sector, \( \mathbf{A} \in \mathbb{R}^{n \times n} \) is the matrix of technical input coefficients, and \( \mathbf{v} \in \mathbb{R}^n \) is the vector of value-added per unit of output (e.g., wages, profits, taxes). The model assumes \emph{fixed input proportions}, implying that the cost structure of each sector is determined by a constant set of input requirements as given by the transpose of \( \mathbf{A} \), with no substitution among inputs. It also operates under \emph{constant returns to scale}, such that proportionally scaling all input prices (including GVA) results in a proportional change in output prices. The pricing mechanism is based on \emph{full cost recovery}, whereby each output price \( p_i \) equals the sum of the input costs and GVA per unit, without markup or profit-maximizing behavior, thus ruling out strategic pricing or demand-side influences. The model assumes \emph{perfect cost pass-through}, meaning any change in the cost of inputs or GVA is fully reflected in output prices. The \emph{value-added vector} \( \mathbf{v} \) is taken as \emph{exogenous}, independent of the price system, and often reflects distributional or institutional factors (e.g., wage-setting, tax policy). Finally, the model is \emph{static}, analyzing relative prices at a single point in time, and assumes no technological change, keeping the technical coefficients in \( \mathbf{A} \) fixed regardless of price shifts.
+
+\section{Pressures on environment}
+\label{appendix:environmental_pressures}
+
+\paragraph{Direct pressures} Economic production exerts several environmental pressures, both in terms of resource extraction and depletion like deforestation (for logging, agriculture, urban expansion), water overuse (irrigation, industrial processes), mineral and fossil fuel depletion (coal, oil, natural gas, rare earth metals), soil degradation (erosion, nutrient depletion from intensive farming), in terms of pollution and waste generation like air pollution (industrial emissions, vehicle exhaust, power plants), water pollution (chemical runoff, oil spills, wastewater discharge), soil contamination (pesticides, industrial waste, landfills), plastic and hazardous waste accumulation (packaging, e-waste), in terms of climate change and biodiversity losses and habitat destruction, urbanization and infrastructure development (roads, dams, cities), agricultural expansion (monoculture farming), ocean and freshwater impacts and energy consumption and resource inefficiency.
+
+\paragraph{Indirect pressures} The stake of input-output analysis for pressure estimation is to distinguish the geosectoral responsibility for \textit{direct} and \textit{indirect} environmental pressures \cite{eder1999environmental}. Calculating the total greenhouse gas (GHG) emissions of a final product, including emissions due to the production of intermediate products, is a standard use of the IO framework. Indeed, when manufacturing a product to satisfy a final demand, a producer generally uses the production of others plus raw inputs: this is intermediate consumption. IOs are used to assess the total carbon footprint of the final product, known as GHG scope 3. More generally, many researchers have proposed modeling the total environmental footprint of economic production using input-output, and numerous studies similar to \cite{lenzen2003environmental,wiedmann2007examining,wiedmann2015material} show that geo-sectoral impacts are considerably higher than on-site impacts for standard pressures such as land-use, soil disturbance, GHG or other gas emissions, water use, pollution but also other topics such as employment. 
+
+\section{Input-output databases}
+\label{appendix:io_databases}
+
+The input-output databases (IODs) store information about the inputs and outputs of economic activities within an economy (as presented in Table \ref{tab:leontief_two_sectors}). In an IOD, each productive geosector of the economy is represented as a row, and each consuming geosector as a column. The entries in the database show the amount of inputs that each geosector uses from other geosectors, as well as the amount of outputs that each geosector produces and sells to other geosectors. 
+IODs can be used for a wide range of applications, including economic analysis, environmental analysis, trade analysis, and policy analysis. 
+
+\vspace{0.1cm}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+Database & Countries & Time Period & Sectors \\ \hline
+EORA & 190 countries & 1990-Present & 26-500+ \\ \hline
+EXIOBASE & 44 countries + 5 RoW & 1995-Present & 163 \\ \hline
+FIGARO & 45 countries + 1 RoW & 2010-Present & 64 \\ \hline
+OECD ICIO & 67 countries & 1995-2020 & 45  \\ \hline
+WIOD & 43 countries + 1 RoW & 2000-2014 & 56  \\ \hline
+\end{tabular}
+\caption{Comparison of Major Economic Input-Output Databases}
+\label{tab:iod}
+\end{table}
+
+\begin{remark}
+    The models and theories presented in the paper are valid at any geosectoral resolution, hence using any IOD presented in Table \ref{tab:iod}. 
+\end{remark}
+
+\noindent In our paper, we present the results obtained using the FIGARO IOD, aggregated at NACE 1 level. 
+
+
+\section{Proof of Eq. \eqref{eq:delta_p_phi}}
+\label{appendix:ptr_costpush}
+
+Let $\phi \in [0,1]^n$ be a vector of pass-through rates, and define $\Phi = \mathrm{diag}(\phi)$. We assume that each sector only passes a fraction $\phi_i$ of its marginal cost increase into its output price. The total cost change for each sector includes both intermediate input cost increases: $A^T \Delta p$ and value-added cost increases: $\Delta v$.
+
+Then the price change vector $\Delta p \in \mathbb{R}^n$ satisfies:
+\[
+\Delta p = A^T \Phi \Delta p + \Phi \Delta v
+\]
+
+\noindent where $\Phi \Delta p$ captures the input costs related to supplier's production cost pass-through, and $\Phi \Delta v$ the direct cost passed on production prices.  Bringing all terms to one side:
+\[
+(I - A^T \Phi) \Delta p = \Phi \Delta v
+\]
+
+\noindent Since $\rho(A^T \Phi) < 1$, the matrix $I - A^T \Phi$ is well-defined, and
+
+\[
+\Delta p = (I - A^T \Phi)^{-1} \Phi \Delta v
+\]
+
+\noindent A more interpretable version of this proof is given in \cite{desnos2023climate}. First, the cost rise passes through the GVA such that at first order, $\Delta p_{(0)} = \Phi \Delta v$. Then, at each cycle $k$ of production exchange, we have $\Delta p_{(k)}=A^T \Phi \Delta p_{(k-1)}$. Backpropagating the inflation effect, we obtain $p_{(k)}=(A^T \Phi)^k \Phi \Delta v$. The total inflation is $\Delta p=\sum_{k=0}^\infty \Delta p_{(k)} = (I - A^T \Phi)^{-1} \Phi \Delta v$. 
+
+\qed
+
+\section{Proof of Proposition \ref{proposition:feedbacks_ptr}}
+\label{app:proof_feedbacks_ptr}
+
+\noindent We split all our matrices in blocks of exogenous, $\mathcal{X}$, and endogenous, $\mathcal{E}$, geosectors. 
+
+\begin{equation*}
+    \Phi = \begin{bmatrix}
+        I_{\mathcal{X}} & 0 \\
+        0 & \Phi_{\mathcal{E}}
+    \end{bmatrix}
+\end{equation*}
+where $\Phi_{\mathcal{E}} = \text{diag}(\phi_{\mathcal{E}})$.
+
+\vspace{0.1cm}
+
+\noindent The "graph pruning" in the exogenous model means $A_{\mathcal{EX}} = 0$, so the adjacency matrix becomes:
+
+\begin{equation*}
+    A = \begin{bmatrix}
+        A_{\mathcal{XX}} & A_{\mathcal{XE}} \\
+        0 & A_{\mathcal{EE}}
+    \end{bmatrix}
+\end{equation*}
+
+\noindent Hence,
+
+\begin{align*}
+    A^T \Phi &= \begin{bmatrix}
+        A_{\mathcal{XX}}^T & 0 \\
+        A_{\mathcal{XE}}^T & A_{\mathcal{EE}}^T
+    \end{bmatrix} \begin{bmatrix}
+        I_{\mathcal{X}} & 0 \\
+        0 & \Phi_{\mathcal{E}}
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+        A_{\mathcal{XX}}^T & 0 \\
+        A_{\mathcal{XE}}^T & A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}
+    \end{bmatrix}
+\end{align*}
+
+\noindent and
+
+\begin{equation*}
+    I - A^T \Phi = \begin{bmatrix}
+        I_{\mathcal{X}} - A_{\mathcal{XX}}^T & 0 \\
+        -A_{\mathcal{XE}}^T & I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}
+    \end{bmatrix}
+\end{equation*}
+
+\noindent To compute the inverse using block matrix inversion, we use the 2x2 block matrix inversion. For a block matrix $\begin{bmatrix} A & B \\ C & D \end{bmatrix}$ where $A$ is invertible and $D - CA^{-1}B$ is invertible, the inverse is:
+
+\begin{equation*}
+    \begin{bmatrix} A & B \\ C & D \end{bmatrix}^{-1} = \begin{bmatrix}
+        A^{-1} + A^{-1}B(D-CA^{-1}B)^{-1}CA^{-1} & -A^{-1}B(D-CA^{-1}B)^{-1} \\
+        -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1}
+    \end{bmatrix}
+\end{equation*}
+
+In our case:
+\begin{align*}
+    A &= I_{\mathcal{X}} - A_{\mathcal{XX}}^T \\
+    B &= 0 \\
+    C &= -A_{\mathcal{XE}}^T \\
+    D &= I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}
+\end{align*}
+
+\noindent Since $B = 0$ here, the formula simplifies to:
+
+\begin{equation*}
+    \left(I - A^T \Phi\right)^{-1} = \begin{bmatrix}
+        \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} & 0 \\
+        \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1} A_{\mathcal{XE}}^T \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} & \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1}
+    \end{bmatrix}
+\end{equation*}
+
+\noindent We then compute $\mathcal{L}(\phi) = \left(I - A^T \Phi\right)^{-1} \Phi$: 
+
+\begin{align*}
+    \mathcal{L}(\phi) &= \begin{bmatrix}
+        \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} & 0 \\
+        \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1} A_{\mathcal{XE}}^T \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} & \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1}
+    \end{bmatrix} \begin{bmatrix}
+        I_{\mathcal{X}} & 0 \\
+        0 & \Phi_{\mathcal{E}}
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+        \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} & 0 \\
+        \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1} A_{\mathcal{XE}}^T \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} & \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1} \Phi_{\mathcal{E}}
+    \end{bmatrix}
+\end{align*}
+
+\noindent We now have the Leontief operators. For a cost shock $\Delta c = \begin{bmatrix} \Delta c_{\mathcal{X}} \\ \Delta c_{\mathcal{E}} \end{bmatrix}$:
+
+\begin{align*}
+    \Delta p_{\mathcal{X}} &= \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} \Delta c_{\mathcal{X}} \\
+    \Delta p_{\mathcal{E}} &= \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1} A_{\mathcal{XE}}^T \left(I_{\mathcal{X}} - A_{\mathcal{XX}}^T\right)^{-1} \Delta c_{\mathcal{X}} + \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1} \Phi_{\mathcal{E}} \Delta c_{\mathcal{E}} \\
+    &= \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T \Phi_{\mathcal{E}}\right)^{-1} \left[A_{\mathcal{XE}}^T \Delta p_{\mathcal{X}} + \Phi_{\mathcal{E}} \Delta c_{\mathcal{E}}\right]
+\end{align*}
+
+\noindent and obtain the formula, including endogenous PTR effect. 
+
+\vspace{0.1cm}
+
+For exogenous sectors with perfect pass-through and no intra-dependencies ($A_{\mathcal{XX}} = 0$):
+
+\begin{equation*}
+    \Delta p_{\mathcal{X}} = \Delta c_{\mathcal{X}}
+\end{equation*}
+
+Setting $\Phi_{\mathcal{E}} = I_{\mathcal{E}}$ (perfect pass-through for endogenous sectors), we have
+
+\begin{equation*}
+    \Delta p_{\mathcal{E}} = \left(I_{\mathcal{E}} - A_{\mathcal{EE}}^T\right)^{-1} \left[A_{\mathcal{XE}}^T \Delta p_{\mathcal{X}} + \Delta c_{\mathcal{E}}\right]
+\end{equation*}
+
+that matches exactly the structure of the exogenous sectors in Eq. \eqref{eq:exogenous_shock}. 
+
+\qed
+
+\section{Proof of Proposition \ref{proposition:feedbacks_ptr}}
+\label{app:proof_feedbacks_ptr_second}
+
+We partition the vectors and the matrices between endogenous $\mathcal{E}$ and exogenous $\mathcal{X}$ geosectors. First, under the assumption that $\phi_\mathcal{X}=0$ and $\phi_\mathcal{E}=1$, with $\Phi=\text{diag}(\phi)$, we have
+\[
+A^T \Phi = \begin{bmatrix}
+A_{\mathcal{EE}}^T & A_{\mathcal{XE}}^T \\
+A_{\mathcal{EX}}^T & A_{\mathcal{XX}}^T
+\end{bmatrix}
+\begin{bmatrix}
+I & 0 \\
+0 & 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+A_{\mathcal{EE}}^T & 0 \\
+A_{\mathcal{EX}}^T & 0
+\end{bmatrix} \text{ and } \Phi A^T = \begin{bmatrix}
+A_{\mathcal{EE}}^T & A_{\mathcal{XE}}^T \\
+0 & 0
+\end{bmatrix}
+\]
+
+\noindent Hence 
+
+\[
+I - A^T \Phi =
+\begin{bmatrix}
+I - A_{\mathcal{EE}}^T & 0 \\
+-A_{\mathcal{EX}}^T & I
+\end{bmatrix}.
+\]
+The inverse of this block upper triangular matrix is
+\[
+(I - A^T \Phi)^{-1} =
+\begin{bmatrix}
+(I - A_{\mathcal{EE}}^T)^{-1} & 0 \\
+A_{\mathcal{EX}}^T (I - A_{\mathcal{EE}}^T)^{-1}  & I
+\end{bmatrix}.
+\]
+Finally,
+\[
+\Phi A^T (\Delta p \odot (1 - \phi)) = \begin{bmatrix}
+A_{\mathcal{EE}}^T & A_{\mathcal{XE}}^T \\
+0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+0 \\
+\Delta p_\mathcal{X}
+\end{bmatrix}
+=
+\begin{bmatrix}
+A_{\mathcal{XE}}^T \Delta p_\mathcal{X} \\
+0
+\end{bmatrix}
+\]
+hence
+\[
+(I - A^T \Phi)^{-1} \Phi A^T (\Delta p \odot (1 - \phi)) =
+\begin{bmatrix}
+(I - A_{\mathcal{EE}}^T)^{-1} & 0 \\
+A_{\mathcal{EX}}^T (I - A_{\mathcal{EE}}^T)^{-1}  & I
+\end{bmatrix}
+\begin{bmatrix}
+A_{\mathcal{XE}}^T \Delta p_\mathcal{X} \\
+0
+\end{bmatrix}
+=
+\begin{bmatrix}
+(I - A_{\mathcal{EE}}^T)^{-1} A_{\mathcal{XE}}^T \Delta p_\mathcal{X} \\
+A_{\mathcal{EX}}^T (I - A_{\mathcal{EE}}^T)^{-1} A_{\mathcal{XE}}^T \Delta p_\mathcal{X}
+\end{bmatrix}
+.
+\]
+
+Therefore, the inflation on endogenous sectors is
+\[
+[\mathcal{L} (\phi) A^T \left( \Delta p  \odot (1 - \phi) \right)]_\mathcal{E} = (I - A_{\mathcal{EE}}^T)^{-1} A_{\mathcal{XE}}^T \Delta p_{\mathcal{X}} = \Delta p_{\mathcal{E}}^{\mathcal{X}}.
+\qquad
+\]
+
+\qed
+
+\section{Proof of Eq. \eqref{eq:perturbed_endogenous_leontief}}
+\label{appendix:proof_markup_leontief}
+
+We assume a change of $\Delta x_i=x_i \Delta^\% x_i$ of the total production capacity of geosector $i$. Under the assumption that $\Delta^\% x_i$ is progressively diffused, such that at each increment we have $x_i \approx (1 + \Delta^{\%}x_i) x_i$ (as in \cite{desnos2023climate}), we deduce that
+
+\begin{align*}
+    x_i & \approx (1 + \Delta^{\%}x_i) \left( \sum_{j=1}^n A_{i,j} x_j + y_i \right) \\
+\end{align*}
+
+\begin{remark}
+The small $\Delta^\% x_i$ means that the shock is locally neglictible in time, et its effect is slowly diffusing in the economy. For example: in a year, all the effect of a systemic chronic change does not happen the first of january, but is smoothed during the year. Hence, locally, the effect is very low so that there is no "reaction effect". It enables to assume that, since x is large, $\Delta^{\%}x_i$ becomes neglectable, i.e., $x_i \approx (1 + \Delta^{\%}x_i) x_i$. 
+\end{remark}
+
+\noindent Using the aforementioned $D:x \in \mathbb{R}^N \mapsto \text{diag} \left( \frac{1}{1 + x_1}, \dots, \frac{1}{1 + x_N} \right)$, we have in matrix form $D(\Delta^\%x) x = Ax + y$. It follows that the new total production is
+
+\begin{align*}
+    x + \Delta x = \left(D(\Delta^\%x) - A \right)^{-1} y
+\end{align*}
+
+\noindent We note that by defining 
+
+\begin{align*}
+    A\left(\Delta \right) := \begin{cases} a_{ij} \text{ if } i \neq j \\
+    a_{ii} + \frac{\Delta^{\%}x_i}{1+\Delta^{\%}x_i}
+    \end{cases}
+\end{align*}
+
+\noindent we obtain equivalently $x(\Delta^{\%}x) = \left(I - A(\Delta^{\%}x) \right)^{-1} y$. The proof for the price equation is similar. 
+
+\qed
+
+\section{Proof of Proposition \ref{proposition:comparison_markup_costpush}}
+\label{appendix:comparison_markup_costpush}
+
+Using the aforementioned functions $d:x \in \mathbb{R}^N \mapsto \text{diag} \left( {1 + x_1}, \dots, {1 + x_N} \right)$ and $D:x \in \mathbb{R}^N \mapsto \text{diag} \left( (1 + x_1)^{-1}, \dots, (1 + x_N)^{-1} \right)$, we can rewrite $p + \Delta p^{(CP)} := {\mathcal{L}^{(CP)}}^T v$ as
+
+\begin{align*}
+    {\mathcal{L}^{(CP)}}^T v = \mathcal{L}^T d(\Delta^{\%} c) v = \left( I - A^T \right)^{-1} d(\Delta^{\%} c) v = \left( D(\Delta^{\%} c) - D(\Delta^{\%} c) A^T \right)^{-1} v
+\end{align*}
+
+\noindent We obtain for the cost-push model a form similar to the mark-up pricing inflation $\left( D(\Delta^\% p) - A^T \right)^{-1}v$ (Eq. \eqref{eq:perturbed_endogenous_leontief}). 
+Since $\Delta^{\%} c \geq 0$ and $A$ is nonnegative, we have
+
+\begin{align*}
+D(\Delta^{\%} c) A^T \leq A^T \Rightarrow D(\Delta^{\%} c) - D(\Delta^{\%} c) A^T \geq D(\Delta^{\%} c) - A^T. 
+\end{align*}
+
+\noindent Moreover, under the condition of stability (Section \ref{sec:leontief_model}), i.e., $\rho(D(\Delta^\%c)^{-1}A)) < 1$ we have that $D(\Delta^{\%} c) - A$ is a M-matrix \cite{hershkowitz1988characterizations}. Idem for $D(\Delta^{\%} c) - D(\Delta^{\%} c) A^T$ since $\rho(A) < 1$ and $D(\Delta^{\%} c)$ is positive diagonal. Finally, we use the \textit{inverse monotonicity of M-matrices} defined below. 
+
+\paragraph{Inverse monotonicity of M-matrices} Let $M$ and $N$ be two M-matrices, such that $M \leq N$. Hence, $M^{-1}-N^{-1}=N^{-1}(N-M)M^{-1} \geq 0$ since $N-M \geq 0$ and M-matrices are inverse-positive. 
+
+\vspace{0.1cm}
+
+\noindent It implies that $(D(\Delta^{\%} c) - A^T)^{-1} \geq (D(\Delta^{\%} c) - D(\Delta^{\%} c) A^T)^{-1}$. Since $v \geq 0$, we then have 
+
+\[ (D(\Delta^{\%} c) - A^T)^{-1} v \geq (D(\Delta^{\%} c) - D(\Delta^{\%} c) A^T)^{-1} v \]
+
+\noindent then
+
+\[ \mathcal{L}^{(CP)} (\Delta^{\%} c) v = \mathcal{L}^T d(\Delta^{\%} c) v = (D(\Delta^{\%} c) - D(\Delta^{\%} c) A^T)^{-1} v \leq (D(\Delta^{\%} c) - A^T)^{-1} v \]
+
+\noindent that closes the inflation proof. 
+
+\vspace{0.1cm}
+
+When cost deflation occurs, i.e., $\Delta^{\%} c \in ]-1,0]$, by Perron-Frobenius we have $\rho(D(\Delta^{\%} c)^{-1}A) \leq \rho(A)$ and condition of stability is always satisfied. The signs simply reverse. Adaptation for Leontief quantity model simply requires removing the transpose sign on $A$. While the perturbation matrices are diagonal, it does not affect them. 
+
+\qed
+
+\section{Elements of proof for Eq. \eqref{eq:conditions_Aii}}
+\label{appendix:proof_conditions_Aii}
+
+We have defined $X := D(\Delta^{\%} v) - D(\Delta^{\%} v) A^T$ and $Y := D(\Delta^{\%} p) - A^T$, with the relation $\Delta^{\%} v= \text{diag}(v)^{-1} \Delta^{\%} p$. It implies $\Delta^{\%} p_i = v_i \Delta^{\%} v_i$ for each component $i$. To find the conditions on $A_{ii}$ for which $(X-Y) \geq 0$, we first compute the matrix $X-Y$:
+
+\begin{align*}
+    X - Y &= \left(D(\Delta^{\%} v) - D(\Delta^{\%} v) A^T\right) - \left(D(\Delta^{\%} p) - A^T\right) \\
+    &= D(\Delta^{\%} v) - D(\Delta^{\%} p) + A^T - D(\Delta^{\%} v) A^T \\
+    &= (D(\Delta^{\%} v) - D(\Delta^{\%} p)) + A^T(I - D(\Delta^{\%} v))
+\end{align*}
+
+\noindent For the matrix $(X-Y)$ to be non-negative, all its elements must be non-negative.
+
+\vspace{0.1cm}
+
+For an off-diagonal element $(i, j)$ where $i \neq j$:
+\begin{align*}
+    [X-Y]_{ij} &= [A^T(I - D(\Delta^{\%} v))]_{ij} = A_{ji} \left(1 - (1 + \Delta^{\%} v_j)^{-1}\right)
+\end{align*}
+Since $A \geq 0$, we have $A_{ji} \geq 0$. As $\Delta^{\%} v_j \geq 0$, the term $\left(1 - (1 + \Delta^{\%} v_j)^{-1}\right)$ is also non-negative. Thus, all off-diagonal elements $[X-Y]_{ij}$ are non-negative.
+
+\vspace{0.1cm}
+
+The problem reduces to ensuring the diagonal elements are non-negative: $[X-Y]_{ii} \geq 0$.
+
+\begin{align*}
+    [X-Y]_{ii} &= [D(\Delta^{\%} v) - D(\Delta^{\%} p)]_{ii} + [A^T(I - D(\Delta^{\%} v))]_{ii} \\
+    	%&= (1+\Delta^{\%} v_i)^{-1} - (1+\Delta^{\%} p_i)^{-1} + A_{ii}\left(1 - (1+\Delta^{\%} v_i)^{-1}\right) \\
+	&= (1+\Delta^{\%} v_i)^{-1} - (1+\Delta^{\%} p_i)^{-1} + A_{ii}\left(\frac{\Delta^{\%} v_i}{1+\Delta^{\%} v_i}\right)
+\end{align*}
+
+\noindent For this to be non-negative, we rearrange to isolate $A_{ii}$:
+
+\begin{align*}
+    A_{ii}\left(\frac{\Delta^{\%} v_i}{1+\Delta^{\%} v_i}\right) &\geq (1+\Delta^{\%} p_i)^{-1} - (1+\Delta^{\%} v_i)^{-1}
+\end{align*}
+Since $\Delta^{\%} v_i > 0$, the term $\frac{\Delta^{\%} v_i}{1+\Delta^{\%} v_i}$ is positive, so we can divide by it:
+\begin{align*}
+    A_{ii} &\geq \frac{(1+\Delta^{\%} p_i)^{-1} - (1+\Delta^{\%} v_i)^{-1}}{\Delta^{\%} v_i/(1+\Delta^{\%} v_i)} \\
+    A_{ii} &\geq \left( \frac{(1+\Delta^{\%} v_i) - (1+\Delta^{\%} p_i)}{(1+\Delta^{\%} p_i)(1+\Delta^{\%} v_i)} \right) \left( \frac{1+\Delta^{\%} v_i}{\Delta^{\%} v_i} \right) \\
+    A_{ii} &\geq \frac{\Delta^{\%} v_i - \Delta^{\%} p_i}{(1+\Delta^{\%} p_i) \Delta^{\%} v_i} \\
+    A_{ii} &\geq \frac{\Delta^{\%} v_i(1-v_i)}{\Delta^{\%} v_i(1+\Delta^{\%} p_i)}
+\end{align*}
+
+\qed
+
+\section{Elements of proof for Eq. \eqref{eq:perturbed_intermediary_leontief}}
+\label{appendix:proof_competitive_leontief}
+
+We assume a change of $\Delta x_i=x_i \Delta^\% x_i$ of the intermediate production demand of geosector $i$. Under the assumption that $\Delta^\% x_i$ is progressively diffused in the production exchange graph $A$, such that at each increment we have $x_i \approx (1 + \Delta^{\%}x_i) x_i$ (as in \cite{desnos2023climate}). We deduce that
+
+\begin{align*}
+    x_i & \approx \sum_{j=1}^n A_{i,j} (x_j + \Delta x_j) + y_i \\
+        & = \sum_{j=1}^n A_{i,j} (1 + \Delta^{\%}x_j) x_j + y_i \\
+\end{align*}
+
+\noindent Using the aforementioned function $d:x \in \mathbb{R}^N \mapsto \text{diag} \left( {1 + x_1}, \dots, {1 + x_N} \right)$, we have in matrix form $x = A d(\Delta^\%x) x + y$. It follows that the new total production is
+
+\begin{align*}
+    x + \Delta x = \left(I - A d(\Delta^\%x) \right)^{-1} y
+\end{align*}
+
+\qed
+
+\section{Proof of Proposition \ref{proposition:comparison_intermediary_markup}}
+\label{appendix:comparison_intermediary_markup}
+
+We compare ${\mathcal{L}^{(IC)}}^T v$ and ${\mathcal{L}^{(MU)}}^T v$, i.e., $\left( I - A^T d(\Delta^\% c) \right)^{-1}v$ and $\left( D(\Delta^\% c) - A^T \right)^{-1} v$. 
+As above, we can rewrite $\left( I - A^T d(\Delta^\% c) \right)^{-1} = D(\Delta^\% c) \left( D(\Delta^\% c) - A^T \right)^{-1}$. Since $\Delta^\% c \geq 0$, then $D(\Delta^\% c) \leq I$. Finally $D(\Delta^\% c) \left( D(\Delta^\% c) - A^T \right)^{-1} \leq \left( D(\Delta^\% c) - A^T \right)^{-1}$. 
+
+\qed
+
+\section{Proof of Proposition \ref{proposition:comparison_intermediary_costpush}}
+\label{appendix:comparison_intermediary_costpush}
+
+We use the Neumann expansion of operators to show the inequality ${\mathcal{L}^{(IC)}(\Delta^\%c)} - {\mathcal{L}^{(CP)}(\Delta^\%c)} \geq I - d(\Delta^\% c)$. We then need to compare $\left( A^T d(\Delta^\%c) \right)^k$ and $\left( A^T \right)^k d(\Delta^\%c)$. 
+
+\vspace{0.1cm}
+
+\noindent For $k=1$, we have trivially $A^T d(\Delta^\%c) \geq A^T d(\Delta^\%c)$.
+
+\vspace{0.1cm}
+
+\noindent For $k=2$, we have 
+
+\begin{align*}
+    d(\Delta^\%c) \geq I 
+    & \Rightarrow A^T d(\Delta^\%c) \geq A^T \\
+    & \Rightarrow d(\Delta^\%c) A^Td (\Delta^\%c) \geq A^T d(\Delta^\%c) \\
+    & \Rightarrow A^T d(\Delta^\%c) A^T d(\Delta^\%c) \geq A^T A^T d(\Delta^\%c) \\
+\end{align*}
+
+\noindent hence inequality holds for $k=2$.
+
+\vspace{0.1cm}
+
+\noindent We assume the inequality $\left( A^T d(\Delta^\%c) \right)^k \geq \left( A^T \right)^k d(\Delta^\%c)$. Since $A^T d(\Delta^\%c) \geq A^T$ we multiply the left entry by $A^T d(\Delta^\%c)$ and the right entry by $A^T$ to obtain the inequality for $k+1$. 
+
+\vspace{0.1cm}
+
+\noindent We have $\sum_{k=1}^\infty \left( A^T d(\Delta^\%c) \right)^k \geq \sum_{k=1}^\infty \left( A^T \right)^k d(\Delta^\%c)$. Hence, 
+
+\begin{align*}
+    {\mathcal{L}^{(IC)}(\Delta^\%c)} - {\mathcal{L}^{(CP)}(\Delta^\%c)} & = I + \sum_{k=1}^\infty \left( A^T d(\Delta^\%c) \right)^k - d(\Delta^\%c) - \sum_{k=1}^\infty \left( A^T \right)^k d(\Delta^\%c) \\
+    & \geq I - d(\Delta^\%c) = \text{diag}(\Delta^\%c)
+\end{align*}
+
+\noindent Then we multiply by $v$ and obtain the final inequality. 
+
+\qed
+
+\section{Elements of proof for Eq. \eqref{eq:ptr_perfect_competition}}
+\label{appendix:ptr_formula}
+
+The elements of proof are taken from \cite{weyl2013pass}. For simpler reading, we directly focus on the \textit{perfect competition} setting. Since we work at geosectoral level, this approximation is acceptable.
+
+\vspace{0.1cm}
+
+Let assume that demand $y(p)$ and supply $x(p)$ are smooth functions of the price of goods and service, with supply surplus declining in price. The exogenous competition is also assumed perfect, such that no changes in the equilibrium come from outside economies. Let $p$ be the price paid by the consumer and $t$ a cost (similar to a tax) paid by either the consumer or the producer. We can show Jenkin's neutrality, saying that the burden of a production cost depends only on the relative elasticities of supply and demand, not on which party is legally responsible for paying the tax. 
+
+\vspace{0.1cm}
+
+Let $\phi$ be the pass-through rate (PTR). At equilibrium price $p^*$, economy produces and sells quantity $Q^*=y\left(p^* + \phi t \right)=x\left(p^*+(1-\phi)t \right)$. 
+
+\begin{remark}
+The equilibrium price is defined such that marginal \textit{consumer surplus} (CS, the total economic benefit that consumers receive when they buy a good at a price lower than the maximum price $p_{max}$ they are willing to pay) and \textit{producer surplus} (PS, the total economic benefit that producers receive when they sell a good at a price higher than the minimum price $p_{min}$ they are willing to accept) are equal to the respective burdens, i.e., 
+
+\begin{align*}
+    \begin{cases} 
+    \frac{dCS}{dt} & = \frac{d}{dt} \int_{p^* + \phi t}^{p_{max}} y(p)dp = -\phi Q^*  \\
+    \frac{dPS}{dt} & = \frac{d}{dt} \int_{p_{min}}^{p^* + (1 - \phi) t} x(p)dp = -(1-\phi) Q^*
+    \end{cases}
+\end{align*}
+
+\noindent We note that the surplus are often defined in terms of quantity instead of price as above. The two ways are equivalent and give the same results. In the case of linear demand and supply with same slope, we obtain a PTR $\phi=0.5$. 
+\end{remark}
+
+\noindent If we define $F(p,t)=y\left(p + \phi t \right)-x\left(p+(1-\phi)t \right)$, we note that $F(p^*, t)=0$. %Then the implicit function theorem implies that there exist a function $p(t)$ and $\epsilon > 0$ such that $p(t^*)=p^*$ and $F(p(t), t)=0, \forall t \in ]t^*-\epsilon, t^* + \epsilon [$.  
+The implicit function theorem implies that there exist a function $p(t)$ such that 
+
+\begin{align*}
+    \frac{dp}{dt} = -\frac{\partial F/ \partial t}{\partial F/\partial p}
+\end{align*}
+
+\noindent Since $\phi := \frac{dp}{dt}$, we obtain a formula for the PTR
+
+\begin{align*}
+    \phi = \frac{dp}{dt} & = -\frac{(p'(t) + \phi)y'(p+\phi t) - (p'(t) + (1 - \phi))x'(p+(1-\phi) t)}{y'(p+\phi t) - x'(p+(1-\phi) t)} \\
+       % & = \frac{2 \phi [D'(p+\phi t) - S'(p+(1-\phi) t)] - S'(p+(1-\phi) t)}{D'(p+\phi t) - S'(p+(1-\phi) t)} \\
+        &= 2\phi - \frac{x'(p+(1 - \phi) t)}{y'(p+\phi t) - x'(p+(1-\phi) t)}
+\end{align*}
+
+\noindent hence
+
+\begin{align*}
+    \phi = \frac{x'(p+(1 - \phi) t)}{x'(p+(1-\phi) t) - y'(p+\phi t)}
+\end{align*}
+
+
+\noindent We note that
+
+\begin{align}
+    \begin{cases}
+        \epsilon^{y,p} = \frac{\Delta y / y}{\Delta p / p} = y'(p) \frac{p}{y(p)} \\
+        \epsilon^{x,p} = \frac{\Delta x / x}{\Delta p / p} = x'(p) \frac{p}{x(p)}
+    \end{cases}
+\end{align}
+
+\noindent such that under constant elasticity assumption, at equilibrium the PTR is defined as in Eq. \eqref{eq:ptr_perfect_competition}, i.e., 
+
+\begin{align*}
+    \phi = \frac{\epsilon^{x,p}}{\epsilon^{x,p} - \epsilon^{y,p}}
+\end{align*}
+
+If, for example, a geosector is concentrated around a single company (e.g., a natural monopolistic sector is the railroad industry), there exists another equilibrium. In monopolistic situation, the revenues of a company are simply $p(q)q$ for a quantity $q$ of sold production, chosen until the marginal cost of production equals the marginal revenue, i.e., $mr(q)=p(q) + p'(q)q=mc(q) + t$. 
+
+\vspace{0.1cm}
+
+\noindent We observe that
+
+\begin{align*}
+    \frac{d}{dt}mr(q)=\frac{d}{dq}mr(q)\frac{dq}{dt}=\frac{d}{dq} mc(q)\frac{dq}{dt} + 1 \Rightarrow \frac{dq}{dt}=\frac{1}{mr'(q) - mc'(q)}. 
+\end{align*}
+
+\noindent Hence
+
+\begin{align*}
+    \frac{dp}{dt} = p'(q) \frac{dq}{dt} = \frac{p'(q)}{mr'(q) - mc'(q)}  = \frac{p'(q)}{p'(q) - ms'(q) - mc'(q)} = \left( 1 - \frac{ms'(q)}{p'(q)} - \frac{mc'(q)}{p'(q)} \right)^{-1}
+\end{align*}
+
+\noindent Considering that $\frac{ms'(q)}{p'(q)}=\frac{ms'(q)ms(q)p(q)}{p'(q)ms(q)p(q)}$ and that $f'(x)=\pm \epsilon^{f,x} \frac{x}{f(x)}$ for any function $f$ of a quantity $x$, $\epsilon$ being the elasticity (with always a positive sign, justifying the $\pm$), we obtain
+
+\begin{align*}
+    \frac{dp}{dt} = \left( 1 - \frac{\epsilon^{y,p} .ms(q)}{\epsilon^{ms,q} .p(q)} - \frac{\epsilon^{y,p} .mc(q)}{\epsilon^{x,p} .p(q)} \right)^{-1}
+\end{align*}
+
+\noindent Finally, following to Lerner's index (a measure of a firm's market power), $ms/p=-1/\epsilon^{y,p}$ and $mc/p=(\epsilon^{y,p} - 1)/\epsilon^{y,p}$, implying that
+
+\begin{align*}
+    \frac{dp}{dt} = \left( 1 - \frac{1}{\epsilon^{ms,q}} - \frac{\epsilon^{y,p} - 1}{\epsilon^{x,p}} \right)^{-1}
+\end{align*}
+
+\qed
+
+\end{document}
