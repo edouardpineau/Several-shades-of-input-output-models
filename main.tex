@@ -111,7 +111,7 @@
 \author{
   Edouard Pineau \\
   \texttt{Natixis}\\
-  \texttt{edouard.pineau@natixis.com}
+  \texttt{pineau.edouard@gmail.com}
 }
 
 \begin{document}
@@ -148,7 +148,7 @@ For illustrative purposes, the examples in this section will use a simplified tw
 
 In IO analysis, the economy is depicted as a matrix where rows and columns represent the various geosectors. Each cell of this matrix quantifies the inputs that one geosector consumes from another, with a final column representing final demand. By analyzing this matrix, economists can determine the direct and indirect effects of changes in production, prices, GVA or final demand as they propagate through the economy.
 For an economic system composed of two productive geosectors, Table \ref{tab:leontief_two_sectors} shows the economic flows at equilibrium. In this context, equilibrium signifies a state where supply and demand are balanced for every geosector, meaning the total output of a sector equals the sum of its intermediate consumption by other sectors and its final demand, given a price determined by the quantity of injected GVA. The production of a geosector $i$, denoted as $x_i$, is the monetary value of its total output (a quantity of products multiplied by a unit price $p_i$). For analyses conducted in monetary units, it is standard convention to normalize the base prices to one ($p_i=1$) for all geosectors. Consequently, the variable $x_i=x_i p_i$ directly represents the total value of production in monetary terms.
-Non significant (for our paper) details on the assumptions used in Leontief IO modeling are given in Appendix \ref{appendix:leontief_assumptions}. 
+%Non significant (for our paper) details on the assumptions used in Leontief IO modeling are given in Appendix \ref{appendix:leontief_assumptions}. 
 The equations and theoretical elements are presented in Section \ref{sec:leontief_model}. 
 
 \begin{table}[!h]
@@ -186,6 +186,13 @@ When it comes to addressing the specific (and highly studied nowdays) case of en
 \vspace{0.1cm}
 
 The relationships between environmental scenarios (e.g., the transition to a sustainable economy, the depletion of natural resources, global warming, and climate change) and Leontief variables, as influenced by value chain spillovers, are illustrated in the use cases described in Section \ref{sec:use_cases} that illustrate the different theoretical results of our paper. 
+
+\paragraph{Objective of the paper} We identified gaps in the literature regarding the systematic comparison of IO model variants and the implications of different stressing assumptions for both theoretical consistency and practical implementation. 
+In particular, in the paper, we clarify theoretically the role of shock origin and propagation. We provide a unified and rigorous comparison of outcomes when shocks are applied to different key variables: final demand, gross value added, intermediate consumption, and total output. By explicitly contrasting these stressing routes within a common framework, we show how apparently similar stress tests can lead to materially different sectoral and geosectoral results, and we explain the economic interpretations and limitations associated with each choice. 
+Moreover, we examine in detail the interaction between price and production equations, an aspect that is often treated piecemeal in applied stress testing work. Our discussion clarifies how price shocks (e.g. carbon prices or biodiversity-related cost changes) propagate through IO systems, under different modeling choices, and how these price dynamics feed back into production volumes and sectoral outputs in geosectoral stress tests.
+We formalize pass-through mechanisms and geosectoral feedbacks in these different views of IO framework. We investigate how binary pass-through assumptions relate to the absence of geosectoral feedbacks in standard IO implementations. We show how continuous pass-through rates can be consistently embedded into the Leontief framework under all stressing assumptions. 
+Beyond these conceptual contributions, the paper aims to be applied. We propose an implementation and examples in the concrete context of environmental stress tests for the financial institutions. 
+
 
 \paragraph{Structure of the paper} The current paper presents the different facets of IO modeling as they enhance geosectoral to stress testing exercises. Section \ref{sec:leontief_model} introduces the core modeling concepts that are subsequently utilized in the theoretical Section \ref{sec:perturbation_input_output}. The Section \ref{sec:cross_effects} shows how the different parts of perturbed IO models interact to take into account not only the dependencies between geosectors, but also between involved economic variables. Then, in Section \ref{sec:use_cases}, we present a set of experiments sampled from environmental-related stress testing examples, that illustrate these theoretical results. The experiments are conducted using data from the Eurostat FIGARO IO database (see Appendix \ref{appendix:io_databases} for a comparison with other IO databases). The proofs of theoretical results are all detailed in appendices. 
 
@@ -529,7 +536,7 @@ cost-push (P)   & $I$ & $I$ & $d(\Delta^{\%})$ \\
 \paragraph{The impact of costs $\Delta c$ on GVA} For a given company, both producer and consumer of other's production, the total loss of GVA due to cost $\Delta c$, all things being equal (i.e., in particular, no adjustment of price), will be
 
 \begin{equation}
-    \Delta v = \underbrace{\mathcal{L}^T \Delta p(\phi)}_{\text{Value chain inflation}} - \underbrace{\left(I - \Phi\right) \Delta c}_{\text{Direct costs}} = \left[ \left(I - A^T\right) \mathcal{L}(\phi) - (I - \Phi) \right] \Delta c
+    \Delta v = \underbrace{\mathcal{I - A}^T \Delta p(\phi)}_{\text{Value chain inflation}} - \underbrace{\left(I - \Phi\right) \Delta c}_{\text{Direct costs}} = \left[ \left(I - A^T\right) \mathcal{L}(\phi) - (I - \Phi) \right] \Delta c
 \label{eq:delta_v_phi}
 \end{equation}
 
@@ -552,8 +559,7 @@ However, inflation generally generates demand shifts, reducing output and theref
 
 \vspace{0.1cm}
 
-When not available at sectoral level, we infer PED from the PTR. %Based on \cite{rbb2014cost}, where authors develop a deep understanding of the cost PTR, and related it with elasticities of demand and supply, in different market structures (perfect competition, monopoly, oligopoly). Details of the different assumptions are given in Appendix \ref{app:details_ptr_structure}
-In \cite{weyl2013pass}, authors developed a general formula that relates PED to PTR, given in Eq. \eqref{eq:ptr_elasticities}
+When not available at sectoral level, we infer PED from the PTR. In \cite{weyl2013pass}, authors developed a general formula that relates PED to PTR, given in Eq. \eqref{eq:ptr_elasticities}
 
 \begin{equation}
 \label{eq:ptr_elasticities}
@@ -562,7 +568,7 @@ In \cite{weyl2013pass}, authors developed a general formula that relates PED to 
 
 \noindent where $c$ is the production cost, $\theta$ 
 %=\frac{p-c}{p}\epsilon^{y}
-is a \textit{conduct parameter} (is typically used to measure competitiveness, i.e., the extent to which firms in a market behave competitively, cooperatively, or monopolistically.), and $\epsilon^y$, $\epsilon^x$, $\epsilon_\theta$ and $\epsilon^{p}$ are respectively the elasticities of demand (w.r.t. price $p$), production (w.r.t. price $p$), conduct (w.r.t. production $x$) and price (w.r.t. demand $y$). All details to obtain this formula are supplied in \cite{weyl2013pass,rbb2014cost}. In particular, by definition of the conduct parameter, they precise that $\theta$ takes value depending on the market structure: $\theta=1$ for a monopoly, $\theta=0$ for perfect competition, $\theta \in [0,1]$ for oligopolistic situations (e.g., $\theta=1/N$ in a Cournot competition between $N$ firms). 
+is a \textit{conduct parameter} (is typically used to measure competitiveness, i.e., the extent to which firms in a market behave competitively, cooperatively, or monopolistically.), and $\epsilon^{y,p}$, $\epsilon^{x,p}$, $\epsilon^{\theta,x}$ and $\epsilon^{ms,p}$ are respectively the elasticities of demand (w.r.t. price $p$), production (w.r.t. price $p$), conduct (w.r.t. production $x$) and marginal surplus (w.r.t. demand $p$). All details to obtain this formula are supplied in \cite{weyl2013pass,rbb2014cost}. In particular, by definition of the conduct parameter, they precise that $\theta$ takes value depending on the market structure: $\theta=1$ for a monopoly, $\theta=0$ for perfect competition, $\theta \in [0,1]$ for oligopolistic situations (e.g., $\theta=1/N$ in a Cournot competition between $N$ firms). 
 
 In a our situation, we are interested in a systemic introduction of additional production cost at geosectoral level. As in \cite{desnos2023climate}, where they assume a perfect competition setting, since at geosectoral level we have enough companies to globally converge towards far-from-monopolistic situation (i.e., $N \rightarrow +\infty$ in Cournot-like competition). Hence, we have $\theta=0$ and we obtain
 
@@ -623,7 +629,7 @@ Finally, going further in the acceptation of modelling assumptions, we can obtai
 \section{Environmental use-cases}
 \label{sec:use_cases}
 
-In this section, we display results of environmental-related stress testing using the different shades of IO modeling presented above. We use FIGARO IO database, aggregated at NACE1 level in each of the 44 countries. The other IODs are presented in Appendix \ref{appendix:io_databases}. We note that the theoretical framework and results presented in the paper are agnostic to the choice of the database. Yet, in practice, changing the data may change the results. Hence, the choice of the database is an assumption to monitor. 
+In this section, we display results of environmental-related stress testing using the different shades of IO modeling presented above. We use FIGARO IO database, aggregated at NACE1 level in each of the 44 countries, in 2024 (last year available when the paper's experiments were generated). The other IODs are presented in Appendix \ref{appendix:io_databases}.  We note that the theoretical framework and results presented in the paper are agnostic to the choice of the database or the year. Yet, in practice, changing the data may change the absolute values of the results, note the illustration of the paper's results. Hence, the choice of the database is an assumption to monitor for pratical usage. 
 
 \subsection{Cost shocks with carbon price}
 
@@ -640,8 +646,8 @@ We have seen that there are two main equations \eqref{eq:perturbed_exogenous_leo
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.49\linewidth]{deltap_carbon.png}
-    \includegraphics[width=0.49\linewidth]{deltap_carbon_comparisons.png}
+    \includegraphics[width=0.49\linewidth]{deltap_by_ptr_comparisons.png}
+    \includegraphics[width=0.49\linewidth]{deltap_by_ptr_pairwise_diff.png}
     \caption{Inflation related to carbon price (in x-axis). We compare the carbon price with respectively cost-push (Eq. \eqref{eq:perturbed_exogenous_leontief}) and mark-up pricing (Eq. \eqref{eq:perturbed_endogenous_leontief}) assumption. We observe the distribution of geosectoral inflation for each assumption and different carbon prices. We observe in the right figure the result of Proposition \ref{proposition:comparison_markup_costpush}. }
     \label{fig:inflation_carbon}
 \end{figure}
@@ -731,11 +737,62 @@ We examined the input-output modeling framework, particularly Leontief models, t
 
 
 
+
+
+
+
+
+
 \newpage
 
-\paragraph{Funding Declaration} No funding to declare for this paper. 
+\noindent \textbf{Declarations}
+
+\vspace{0.1cm}
+
+\noindent Following the \href{https://link.springer.com/journal/40008/submission-guidelines/research-article}{giudelines of the Journal of Economic Structures}, author declares:
+
+\paragraph{Availability of data and materials} The data to reproduce the experiments of the paper are IO tables. The hyperlinks are given in Appendix \ref{appendix:io_databases}. As explained at the beginning of the Section \ref{sec:use_cases}: \textit{We use FIGARO IO database, aggregated at NACE1 level in each of the 44 countries, in 2024 (last year available when the paper's experiments were generated). [...] We note that the theoretical framework and results presented in the paper are agnostic to the choice of the database or the year. Yet, in practice, changing the data may change the absolute values of the results, note the illustration of the paper's results. Hence, the choice of the database is an assumption to monitor for pratical usage. }
+
+\vspace{0.1cm}
+
+To obtain the databases, please follow the \href{https://circabc.europa.eu/ui/group/cec66924-a924-4f91-a0ef-600a0531e3ba/library/e6896a70-5dbf-479c-8852-94b5dd1e3952?p=1&n=10&sort=modified_DESC}{link}. You then download the csv file for the year of interest. The file contains all the information needed for the IO modeling. 
+
+\vspace{0.1cm}
+
+The full code and data that support the findings of this study are available but restrictions apply to the availability of these. Code and data are however available from the authors upon reasonable request.
+ 
+
+\paragraph{Competing interests} No financial and non-financial competing interests are involved here.
+
+\paragraph{Funding} No specific funding to declare for this paper. It has been written on free time, but using my employer's computer (I don't have personnel computer). 
+
+\paragraph{Authors' contributions} EP fully contributed since he is the only author. 
+
+\paragraph{Acknowledgements} Not applicable : no other contributors. 
+
+\paragraph{Authors' information} With a background in applied mathematics studied at Université Paris-Dauphine and ENS Cachan, Edouard is specialized in the integration of environmental factors into economic and financial risks. For four years after defending his PhD at Institut Polytechnique de Paris, he worked with banks and investors to help them model and quantify their exposure to physical and transitional climate risks and ecosystem degradation. 
+
+\paragraph{Ethics approval and consent to participate} Not applicable. 
+
+\paragraph{Consent for publication} Author consents to publish the paper. No other human involved. 
+
+
+
 
 \newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \bibliographystyle{plain}
 \bibliography{main_vc}
@@ -744,18 +801,18 @@ We examined the input-output modeling framework, particularly Leontief models, t
 
 \appendix
 
-\section{Leontief assumptions}
-\label{appendix:leontief_assumptions}
+%\section{Leontief assumptions}
+%\label{appendix:leontief_assumptions}
 
-The Leontief input-output model is typically expressed as 
-$\mathbf{x} = \mathbf{A} \mathbf{x} + \mathbf{y}$
-where \( \mathbf{x} \) is the vector of gross outputs, \( \mathbf{A} \) is the matrix of input coefficients, and \( \mathbf{y} \) is the vector of final demand. A foundational assumption is that of \emph{fixed input coefficients}, implying that the input requirements per unit of output are constant and represented by the elements \( a_{ij} \) of matrix \( \mathbf{A} \); this reflects a \emph{linear production function} with no possibility of input substitution. The model also operates under \emph{constant returns to scale}, where doubling all inputs leads to a proportional doubling of output. It presumes \emph{no supply constraints}, allowing industries to meet any level of demand without resource or capacity limitations. The model treats all outputs as \emph{homogeneous}, so each component \( x_i \) of the output vector refers to a uniform product from sector \( i \). \emph{Inter-industry interdependence} is embedded in the structure of \( \mathbf{A} \), where each element \( a_{ij} \) quantifies the input from sector \( i \) required per unit output of sector \( j \), thus linking sectors through input-output flows. The model is \emph{static}, analyzing the equilibrium relationship at a fixed point in time and excluding dynamic factors such as technological progress or investment. Finally, \emph{final demand} \( \mathbf{y} \) is treated as \emph{exogenous}, meaning it is specified outside the system and drives the determination of gross output \( \mathbf{x} \) through the inverse solution $\mathbf{x} = (I - \mathbf{A})^{-1} \mathbf{y}$. 
+%The Leontief input-output model is typically expressed as 
+%$\mathbf{x} = \mathbf{A} \mathbf{x} + \mathbf{y}$
+%where \( \mathbf{x} \) is the vector of gross outputs, \( \mathbf{A} \) is the matrix of input coefficients, and \( \mathbf{y} \) is the vector of final demand. A foundational assumption is that of \emph{fixed input coefficients}, implying that the input requirements per unit of output are constant and represented by the elements \( a_{ij} \) of matrix \( \mathbf{A} \); this reflects a \emph{linear production function} with no possibility of input substitution. The model also operates under \emph{constant returns to scale}, where doubling all inputs leads to a proportional doubling of output. It presumes \emph{no supply constraints}, allowing industries to meet any level of demand without resource or capacity limitations. The model treats all outputs as \emph{homogeneous}, so each component \( x_i \) of the output vector refers to a uniform product from sector \( i \). \emph{Inter-industry interdependence} is embedded in the structure of \( \mathbf{A} \), where each element \( a_{ij} \) quantifies the input from sector \( i \) required per unit output of sector \( j \), thus linking sectors through input-output flows. The model is \emph{static}, analyzing the equilibrium relationship at a fixed point in time and excluding dynamic factors such as technological progress or investment. Finally, \emph{final demand} \( \mathbf{y} \) is treated as \emph{exogenous}, meaning it is specified outside the system and drives the determination of gross output \( \mathbf{x} \) through the inverse solution $\mathbf{x} = (I - \mathbf{A})^{-1} \mathbf{y}$. 
 
-\vspace{0.1cm}
+%\vspace{0.1cm}
 
-For the price side, expressed as 
-$\mathbf{p} = \mathbf{A}^\top \mathbf{p} + \mathbf{v}$
-where \( \mathbf{p} \in \mathbb{R}^n \) is the vector of output prices by sector, \( \mathbf{A} \in \mathbb{R}^{n \times n} \) is the matrix of technical input coefficients, and \( \mathbf{v} \in \mathbb{R}^n \) is the vector of value-added per unit of output (e.g., wages, profits, taxes). The model assumes \emph{fixed input proportions}, implying that the cost structure of each sector is determined by a constant set of input requirements as given by the transpose of \( \mathbf{A} \), with no substitution among inputs. It also operates under \emph{constant returns to scale}, such that proportionally scaling all input prices (including GVA) results in a proportional change in output prices. The pricing mechanism is based on \emph{full cost recovery}, whereby each output price \( p_i \) equals the sum of the input costs and GVA per unit, without markup or profit-maximizing behavior, thus ruling out strategic pricing or demand-side influences. The model assumes \emph{perfect cost pass-through}, meaning any change in the cost of inputs or GVA is fully reflected in output prices. The \emph{value-added vector} \( \mathbf{v} \) is taken as \emph{exogenous}, independent of the price system, and often reflects distributional or institutional factors (e.g., wage-setting, tax policy). Finally, the model is \emph{static}, analyzing relative prices at a single point in time, and assumes no technological change, keeping the technical coefficients in \( \mathbf{A} \) fixed regardless of price shifts.
+%For the price side, expressed as 
+%$\mathbf{p} = \mathbf{A}^\top \mathbf{p} + \mathbf{v}$
+%where \( \mathbf{p} \in \mathbb{R}^n \) is the vector of output prices by sector, \( \mathbf{A} \in \mathbb{R}^{n \times n} \) is the matrix of technical input coefficients, and \( \mathbf{v} \in \mathbb{R}^n \) is the vector of value-added per unit of output (e.g., wages, profits, taxes). The model assumes \emph{fixed input proportions}, implying that the cost structure of each sector is determined by a constant set of input requirements as given by the transpose of \( \mathbf{A} \), with no substitution among inputs. It also operates under \emph{constant returns to scale}, such that proportionally scaling all input prices (including GVA) results in a proportional change in output prices. The pricing mechanism is based on \emph{full cost recovery}, whereby each output price \( p_i \) equals the sum of the input costs and GVA per unit, without markup or profit-maximizing behavior, thus ruling out strategic pricing or demand-side influences. The model assumes \emph{perfect cost pass-through}, meaning any change in the cost of inputs or GVA is fully reflected in output prices. The \emph{value-added vector} \( \mathbf{v} \) is taken as \emph{exogenous}, independent of the price system, and often reflects distributional or institutional factors (e.g., wage-setting, tax policy). Finally, the model is \emph{static}, analyzing relative prices at a single point in time, and assumes no technological change, keeping the technical coefficients in \( \mathbf{A} \) fixed regardless of price shifts.
 
 \section{Pressures on environment}
 \label{appendix:environmental_pressures}
@@ -777,11 +834,10 @@ IODs can be used for a wide range of applications, including economic analysis, 
 \begin{tabular}{|l|l|l|l|}
 \hline
 Database & Countries & Time Period & Sectors \\ \hline
-EORA & 190 countries & 1990-Present & 26-500+ \\ \hline
-EXIOBASE & 44 countries + 5 RoW & 1995-Present & 163 \\ \hline
-FIGARO & 45 countries + 1 RoW & 2010-Present & 64 \\ \hline
-OECD ICIO & 67 countries & 1995-2020 & 45  \\ \hline
-WIOD & 43 countries + 1 RoW & 2000-2014 & 56  \\ \hline
+\href{https://worldmrio.com/}{EORA} & 190 countries & 1990-Present & 26-500+ \\ \hline
+\href{https://exiobase.eu/}{EXIOBASE} & 44 countries + 5 RoW & 1995-Present & 163 \\ \hline
+\href{https://ec.europa.eu/eurostat/web/esa-supply-use-input-tables/database}{FIGARO} & 45 countries + 1 RoW & 2010-Present & 64 \\ \hline
+\href{https://www.rug.nl/ggdc/valuechain/wiod/}{WIOD} & 43 countries + 1 RoW & 2000-2014 & 56  \\ \hline
 \end{tabular}
 \caption{Comparison of Major Economic Input-Output Databases}
 \label{tab:iod}
